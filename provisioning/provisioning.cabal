@@ -1,0 +1,30 @@
+Name:                   provisioning
+Version:                0.1
+Synopsis:               provisioning(exporting EK, golden pcr composites, etc) main executable
+License:                BSD3
+License-file:           LICENSE
+Author:                 Adam Petz
+Maintainer:             ampetz@ittc.ku.edu
+Cabal-Version:          >= 1.2
+
+Build-type:             Simple
+
+executable              Provisioning
+  hs-source-dirs:       src, shared, provisioning
+  build-depends:        base >= 4,
+                        mtl,
+                        directory,
+                        containers,
+                        bytestring,
+                        binary,
+                        network < 2.6,
+                        random,
+                        --network-bytestring,
+                        HsOpenSSL,
+                        SHA,
+                        RSA,
+                        parsec >= 3,
+                        filepath,
+                        VChanUtil
+  Main-is: ProvisioningMain.hs
+  ghc-options: -O

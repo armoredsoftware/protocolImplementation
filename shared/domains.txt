@@ -1,0 +1,4 @@
+Measurer: 61
+Attester: 69
+Appraiser: 68
+CA: 7

@@ -1,0 +1,34 @@
+Name:                   attester
+Version:                0.1
+Synopsis:               appraiser main executable
+License:                BSD3
+License-file:           LICENSE
+Author:                 Adam Petz
+Maintainer:             ampetz@ittc.ku.edu
+Cabal-Version:          >= 1.2
+
+Build-type:             Simple
+
+executable              Attester
+  hs-source-dirs:       ./, ../protoMonad, ../provisioning
+  build-depends:        base >= 4,
+                        mtl,
+                        transformers,
+                        cipher-aes,
+                        crypto-api,
+                        directory,
+                        containers,
+                        bytestring,
+                        binary,
+                        network < 2.6,
+                        random,
+                        --network-bytestring,
+                        HsOpenSSL,
+                        SHA,
+                        RSA,
+                        parsec >= 3,
+                        filepath,
+                        VChanUtil,
+                        tpmEmulator
+  Main-is: AttesterMain.hs
+  ghc-options: -O
