@@ -82,16 +82,6 @@ mkQuote qKeyHandle qKeyPass pcrSelect exData = do
    putStrLn $ "\nQuote generated:\n"
    return (pcrComp, sig)
 
-
-{-tpm_pcr_composite_hash :: TPM_PCR_COMPOSITE -> TPM_DIGEST
-tpm_pcr_composite_hash comp = tpm_digest (encode comp)
-
-tpm_get_rsa_PublicKey :: TPM_PUBKEY -> PublicKey
-tpm_get_rsa_PublicKey key = PublicKey size modl expn
-  where size = fromIntegral $ (tpm_key_pubsize key) `div` 8
-        expn = bs2int $ tpm_key_pubexp key
-        modl = bs2int $ tpm_key_pubmod key -}
-
 pcrModify :: String -> IO TPM_PCRVALUE
 pcrModify val = tpm_pcr_extend_with tpm (fromIntegral pcrNum) val
 

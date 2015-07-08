@@ -7,7 +7,7 @@ import ProtoActions
 import VChanUtil
 import TPMUtil
 import Keys
---import ProtoTypes(Channel)
+
 
 import Prelude
 import Data.ByteString.Lazy hiding (putStrLn)

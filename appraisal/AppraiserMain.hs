@@ -8,9 +8,8 @@ import VChanUtil
 import TPM
 import TPMUtil
 import Keys
---import TPM.Types
 import Provisioning(readComp)
---import ProtoTypes(Channel)
+
 
 import Prelude
 import Data.ByteString.Lazy hiding (putStrLn, map)
@@ -42,7 +41,7 @@ main = appmain' 1
 appmain' :: Int -> IO ()
 appmain' pId = do
   putStrLn "Main of entity Appraiser"
-  env <- appCommInit 3 -- [appId, caId] --TODO: Need Channel form Paul
+  env <- appCommInit 3
   let pcrSelect = mkTPMRequest [0..23]
       nonce = 34
   eitherResult <- runProto (caEntity_App [0,1,2] nonce pcrSelect) env
@@ -74,9 +73,7 @@ evaluate pId (d, nonceReq, pcrSelect)
       r2 = realVerify aikPublicKey (encode quoteInfo) qSig
       r3 = nonceReq == nonceResp
   goldenPcrComposite <- readComp
-  --putStrLn $ "\n \n COMP Compare: \n"
-  --putStrLn $ "\n measured comp: \n" ++ show pcrComp
-  --putStrLn $ "\n measured comp: \n" ++ show goldenPcrComposite
+
   let r4 = pcrComp == goldenPcrComposite
       r5 = case pId of 1 -> ev == [0,1,2]
                        2 -> ev == []

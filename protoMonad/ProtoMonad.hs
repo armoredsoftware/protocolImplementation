@@ -3,7 +3,6 @@
 module ProtoMonad where
 
 import ProtoTypesA
---import ProtoTypes(Channel)
 import VChanUtil
 
 import Prelude hiding (lookup)
