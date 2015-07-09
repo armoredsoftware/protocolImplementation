@@ -2,7 +2,7 @@ Name:                   provisioning
 Version:                0.1
 Synopsis:               provisioning(exporting EK, golden pcr composites, etc) main executable
 License:                BSD3
-License-file:           LICENSE
+--License-file:           LICENSE
 Author:                 Adam Petz
 Maintainer:             ampetz@ittc.ku.edu
 Cabal-Version:          >= 1.2
@@ -10,7 +10,7 @@ Cabal-Version:          >= 1.2
 Build-type:             Simple
 
 executable              Provisioning
-  hs-source-dirs:       src, shared, provisioning
+  hs-source-dirs:       ./, ../protoMonad
   build-depends:        base >= 4,
                         mtl,
                         directory,
@@ -25,6 +25,8 @@ executable              Provisioning
                         RSA,
                         parsec >= 3,
                         filepath,
-                        VChanUtil
+                        crypto-api,
+                        VChanUtil,
+                        tpmEmulator
   Main-is: ProvisioningMain.hs
   ghc-options: -O

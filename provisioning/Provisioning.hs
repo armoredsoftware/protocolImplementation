@@ -2,26 +2,29 @@ module Provisioning where
 
 import TPM
 import TPMUtil
---import Demo3Shared
+import Keys
 
 import System.IO
 import Data.Word
 import Data.Binary
 
-goldenFileName :: String
-goldenFileName= "goldenPcrComposite.txt"
+goldenCompFileName :: String
+goldenCompFileName= "goldenPcrComposite.txt"
 
+readGoldenComp :: IO TPM_PCR_COMPOSITE
+readGoldenComp = do
+  decodeFile goldenCompFileName
 
-readComp :: IO TPM_PCR_COMPOSITE
-readComp = do
-  handle <- openFile goldenFileName ReadMode
-  compString <- hGetLine handle
-  let comp :: TPM_PCR_COMPOSITE
-      comp = read compString
-  putStrLn $ show comp
-  hClose handle
-  return comp
+exportGoldenComp :: TPM_PCR_COMPOSITE -> IO ()
+exportGoldenComp comp = do
+  encodeFile goldenCompFileName comp
+  putStrLn $ "Exported golden TPM_PCR_COMPOSITE to file: "
+             ++ goldenCompFileName
 
+exportCurrentComp :: IO ()
+exportCurrentComp = do
+  currentComp <- getCurrentComp
+  exportGoldenComp currentComp
 
 getCurrentComp :: IO TPM_PCR_COMPOSITE
 getCurrentComp = do
@@ -30,15 +33,30 @@ getCurrentComp = do
   compGolden <- tpm_pcr_composite tpm pcrSelect
   return compGolden
 
+exportCAKeys :: IO ()
+exportCAKeys = do
+  (pub, pri) <- generateArmoredKeyPair
+  exportPublicKey caPublicKeyFile pub
+  putStrLn $ "Exported CA PublicKey to file: "
+             ++ caPublicKeyFile
+  exportPrivateKey caPrivateKeyFile pri
+  putStrLn $ "Exported CA PrivateKey to file: "
+             ++ caPrivateKeyFile
 
---Helper for export
-doExport :: String -> TPM_PCR_COMPOSITE ->  IO ()
-doExport fileName comp =
-                   do handle <- openFile fileName WriteMode
-                      hPutStrLn handle $ show comp
-                      hClose handle
+--One time functions to provision EK
+exportEKFileName = "ekpub.txt"
 
---Helper for export
-genDoExport :: (Binary a) => String -> a ->  IO ()
-genDoExport fileName val =
-                   do encodeFile fileName val
+readEK :: IO TPM_PUBKEY
+readEK = do
+  decodeFile exportEKFileName
+
+exportEK :: TPM_PUBKEY -> IO ()
+exportEK ek = do
+  encodeFile exportEKFileName ek
+  putStrLn $ "Exported public EK to file: "
+             ++ exportEKFileName
+
+ekProvision :: IO ()
+ekProvision = do
+  ekPub <- takeInit
+  exportEK ekPub

@@ -8,7 +8,7 @@ import VChanUtil
 import TPM
 import TPMUtil
 import Keys
-import Provisioning(readComp)
+import Provisioning(readGoldenComp)
 
 
 import Prelude
@@ -28,8 +28,8 @@ appCommInit domid = do
       attInfo = EntityInfo "Attester" 22 attChan
       mList = [(0, myInfo), (1, attInfo)]
       ents = M.fromList mList
-  (_,myPri) <- generateAKeyPair
-  attPub <-getBPubKey
+  (attPub,myPri) <- generateArmoredKeyPair --Currently not used
+  --attPub <-getBPubKey
   let pubs = M.fromList [(1,attPub)]
 
 
@@ -58,7 +58,7 @@ evaluate :: Int -> (EvidenceDescriptor, Nonce, TPM_PCR_SELECTION) ->
              (SignedData TPM_PUBKEY), Signature) -> IO String
 evaluate pId (d, nonceReq, pcrSelect)
   (ev, nonceResp, pcrComp, cert@(SignedData aikPub aikSig), qSig) = do
-  (caPublicKey, _) <- generateCAKeyPair
+  caPublicKey <- getCAPublicKey
   let blobEvidence :: ByteString
       blobEvidence = packImpl [AEvidence ev, ANonce nonceResp,
                                ASignedData $ SignedData ( ATPM_PUBKEY (dat cert)) (sig cert)] --pubKey
@@ -72,7 +72,7 @@ evaluate pId (d, nonceReq, pcrSelect)
       r1 = realVerify caPublicKey (encode aikPub) aikSig
       r2 = realVerify aikPublicKey (encode quoteInfo) qSig
       r3 = nonceReq == nonceResp
-  goldenPcrComposite <- readComp
+  goldenPcrComposite <- readGoldenComp
 
   let r4 = pcrComp == goldenPcrComposite
       r5 = case pId of 1 -> ev == [0,1,2]

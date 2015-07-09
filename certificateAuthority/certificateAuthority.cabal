@@ -10,7 +10,7 @@ Cabal-Version:          >= 1.2
 Build-type:             Simple
 
 executable              CA
-  hs-source-dirs:       ./, ../protoMonad
+  hs-source-dirs:       ./, ../protoMonad, ../provisioning
   build-depends:        base >= 4,
                         mtl,
                         transformers,

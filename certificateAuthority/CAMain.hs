@@ -24,8 +24,8 @@ caCommInit attChan = do
       attInfo = EntityInfo "Attester" 22 attChan
       mList = [(0, myInfo), (1, attInfo)]
       ents = M.fromList mList
-  (_,myPri) <- generateAKeyPair
-  attPub <- getBPubKey
+  myPri <- getCAPrivateKey
+  (attPub, _) <- generateArmoredKeyPair -- Not used
   let pubs = M.fromList [(1,attPub)]
   return $ ProtoEnv 0 myPri ents pubs 0 0 0 1
 

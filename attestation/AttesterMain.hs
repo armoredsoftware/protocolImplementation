@@ -27,10 +27,11 @@ attCommInit domidS = do
       caInfo = EntityInfo "Certificate Authority" 33 caChan
       mList = [(0, myInfo), (1, appInfo), (2, caInfo)]
       ents = M.fromList mList
-  (_,myPri) <- generateAKeyPair
-  appPub <- getBPubKey
-  caPub <- getBPubKey
-  let pubs = M.fromList [(1,appPub), (2, caPub)]
+  (appPub,myPri) <- generateArmoredKeyPair -- Currently not used
+  --appPub <- getBPubKey
+  --caPub <- getBPubKey
+  let caPub = appPub --Not used
+      pubs = M.fromList [(1,appPub), (2, caPub)]
 
 
   return $ ProtoEnv 0 myPri ents pubs 0 0 0 1

@@ -6,6 +6,7 @@ import ProtoTypesA
 import ProtoMonad
 import ProtoActions
 import Keys
+import Provisioning
 import TPM
 import TPMUtil
 import VChanUtil hiding (send, receive)
@@ -145,7 +146,7 @@ caEntity_CA attChan = do
                 (ATPM_IDENTITY_CONTENTS pubKey)
                  sig)]  <- liftIO $ receive' attChan
 
-  ekPubKey <- liftIO readPubEK
+  ekPubKey <- liftIO readEK
 
   let iPubKey = identityPubKey pubKey
       iDigest = tpm_digest $ encode iPubKey
@@ -153,7 +154,7 @@ caEntity_CA attChan = do
       blob = encode asymContents
   encBlob <-  liftIO $ tpm_rsa_pubencrypt ekPubKey blob
 
-  (_,caPriKey) <- liftIO generateCAKeyPair
+  caPriKey <- liftIO getCAPrivateKey
   let caCert = realSign caPriKey (encode iPubKey)
       certBytes = encode (SignedData iPubKey caCert)
 
