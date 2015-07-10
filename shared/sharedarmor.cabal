@@ -26,7 +26,8 @@ library
                       scotty,
                       http-streams,
                       bytestring,
-                      unordered-containers
+                      unordered-containers,
+                      text
                       
 
   hs-source-dirs:     ./, ../apprasier, ../attester, ../shared
