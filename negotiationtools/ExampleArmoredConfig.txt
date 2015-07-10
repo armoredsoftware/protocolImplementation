@@ -1,0 +1,10 @@
+Want:
+OS.Name e= {"Windows", "Linux"} || 
+VC.Name = "UniVaccine" && VC.Version >= 5.1
+
+
+Privacy Policy:
+Reveal my.OS.* if their.VC.name e= {"Avast", "Norton", "Hearsa", "Who"} ||
+       	       	  their.ID.Name = "Appraiser" 
+
+--anything not listed will by default not be given away.
