@@ -23,7 +23,9 @@ library
   build-depends:      base,
                       mtl,
                       stm,
-                      scotty
+                      scotty,
+                      http-streams,
+                      bytestring
                       
 
   hs-source-dirs:     ./, ../apprasier, ../attester, ../shared
