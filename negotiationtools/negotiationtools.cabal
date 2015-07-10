@@ -33,7 +33,9 @@ library
                       network-info,
                       aeson,
                       io-streams,
-                      mtl
+                      mtl,
+                      HTTP,
+                      network
                       
 
   hs-source-dirs:     ./, ../apprasier, ../attester, ../shared
