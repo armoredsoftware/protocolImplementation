@@ -35,7 +35,7 @@ library
                       cipher-aes,
                       RSA,
                       binary,
-                      VChanUnit,
+                      VChanUtil,
                       tpmEmulator
                       
 
