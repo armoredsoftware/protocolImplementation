@@ -35,7 +35,9 @@ library
                       io-streams,
                       mtl,
                       HTTP,
-                      network
+                      network,
+                      SHA,
+                      containers
                       
 
   hs-source-dirs:     ./, ../apprasier, ../attester, ../shared
