@@ -20,7 +20,10 @@ library
    --                    FlexibleInstances,
      --                  DeriveDataTypeable,
        --                ExistentialQuantification
-  build-depends:      base
+  build-depends:      base,
+                      mtl,
+                      stm,
+                      scotty
                       
 
   hs-source-dirs:     ./, ../apprasier, ../attester, ../shared
