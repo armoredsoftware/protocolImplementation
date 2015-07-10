@@ -32,7 +32,8 @@ library
                       bytestring,
                       network-info,
                       aeson,
-                      io-streams
+                      io-streams,
+                      mtl
                       
 
   hs-source-dirs:     ./, ../apprasier, ../attester, ../shared
