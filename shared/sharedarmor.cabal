@@ -34,7 +34,7 @@ library
                       random,
                       cipher-aes,
                       RSA,
-                      tpmEmulator
+                      binary
                       
 
   hs-source-dirs:     ./, ../apprasier, ../attester, ../shared
