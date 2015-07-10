@@ -13,8 +13,7 @@ extra-source-files:  README.md
 cabal-version:       >=1.10
 
 library
-  exposed-modules:     Demo3Shared,
-                       ProtoTypes
+  exposed-modules:    ProtoTypes
   -- other-modules:
  -- other-extensions:    TypeSynonymInstances,
    --                    FlexibleInstances,
