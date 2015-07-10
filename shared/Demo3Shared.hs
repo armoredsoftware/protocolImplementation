@@ -321,10 +321,10 @@ decrypt key encryptedM = (fromStrict strictDecryptedM)
        strictDecryptedM = decryptCTR aes ctr strictEncryptedM
 
 sign :: (Binary a{-, Signable a-}) => PriKey -> a -> ByteString
-sign priKey a = rsassa_pkcs1_v1_5_sign ha_SHA1 priKey ({-toBits-} encode a)
+sign priKey a = rsassa_pkcs1_v1_5_sign hashsha1 priKey ({-toBits-} encode a)
 
 verify :: (Binary a{-, Signable a-})=> PubKey -> Signed a -> Bool
-verify pubKey signed = rsassa_pkcs1_v1_5_verify ha_SHA1 
+verify pubKey signed = rsassa_pkcs1_v1_5_verify hashsha1
                                                                           pubKey 
                                                                           ({-toBits-}encode $ dat signed) 
                                                                           (sig signed)
