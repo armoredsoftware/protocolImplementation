@@ -34,7 +34,9 @@ library
                       random,
                       cipher-aes,
                       RSA,
-                      binary
+                      binary,
+                      VChanUnit,
+                      tpmEmulator
                       
 
   hs-source-dirs:     ./, ../apprasier, ../attester, ../shared
