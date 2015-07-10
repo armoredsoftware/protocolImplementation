@@ -27,7 +27,10 @@ library
                       http-streams,
                       bytestring,
                       unordered-containers,
-                      text
+                      text,
+                      base64-bytestring,
+                      transformers,
+                      aeson
                       
 
   hs-source-dirs:     ./, ../apprasier, ../attester, ../shared
