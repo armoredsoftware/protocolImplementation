@@ -162,7 +162,7 @@ decrypt key encryptedM = (fromStrict strictDecryptedM)
        aes = initAES key
        ctr = key
        strictDecryptedM = decryptCTR aes ctr strictEncryptedM
-
+{-
 sign :: (Binary a{-, Signable a-}) => PriKey -> a -> ByteString
 sign priKey a = rsassa_pkcs1_v1_5_sign ha_SHA1 priKey ({-toBits-} encode a)
 
@@ -172,7 +172,7 @@ verify pubKey signed = rsassa_pkcs1_v1_5_verify ha_SHA1
                                                                           ({-toBits-}encode $ dat signed) 
                                                                           (sig signed)
   
-                      
+  -}                    
 signPack :: (Binary a{-, Signable a-}) => PriKey -> a -> Signed a
 signPack priKey x = Signed x sig
   where sig = sign priKey x
