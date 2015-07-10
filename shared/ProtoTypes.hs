@@ -2,7 +2,7 @@
 module ProtoTypes where
 
 import Data.Aeson (toJSON, parseJSON, ToJSON,FromJSON, object , (.=), (.:) )
-import Demo3Shared hiding (Result, sig, dat, Signature, Evidence, EvidenceDescriptor)
+--import Demo3Shared hiding (Result, sig, dat, Signature, Evidence, EvidenceDescriptor)
 import Control.Monad
 import Control.Monad.State.Strict hiding (get, put)
 import Data.ByteString.Lazy (ByteString, pack, append, empty, cons, fromStrict, length)
@@ -111,11 +111,13 @@ data Process = Send Armored Armored Process
 
 --these are the 'nouns'	   
 --putOnArmor :: a -> Armored
---putOnArmor ..  
+--putOnArmor .. 
+data EvidenceDescriptor = D0 | D1 | D2 
+                        | DONE deriving(Eq, Ord, Show) 
 data Armored = Var String
 	     | ARequest Request
  	     | AResponse Response
-             | AEvidenceDescriptor Demo3.EvidenceDescriptor
+             | AEvidenceDescriptor EvidenceDescriptor
 	     | AEvidencePiece EvidencePiece
 	     | ACARequest CARequest
 	     | ACAResponse CAResponse 
