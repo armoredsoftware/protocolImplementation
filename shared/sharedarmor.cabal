@@ -30,7 +30,10 @@ library
                       text,
                       base64-bytestring,
                       transformers,
-                      aeson
+                      aeson,
+                      random,
+                      cipher-aes,
+                      RSA
                       
 
   hs-source-dirs:     ./, ../apprasier, ../attester, ../shared
