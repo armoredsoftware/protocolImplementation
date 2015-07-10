@@ -1,4 +1,4 @@
-module Main where --AttesterMain where
+module AttesterMain where --AttesterMain where
 
 import CAProtoMain (caEntity_Att)
 import ProtoMonad
@@ -37,7 +37,7 @@ attCommInit domidS = do
   return $ ProtoEnv 0 myPri ents pubs 0 0 0 1
 
 
-main = attmain' [1, 4]
+--main = attmain' [1, 4]
 
 attmain' :: [Int] -> IO String
 attmain' chans = do

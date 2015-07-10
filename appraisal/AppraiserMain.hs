@@ -1,4 +1,4 @@
-module Main where --AppMain where
+module AppraiserMain where --AppMain where
 
 import CAProtoMain (caEntity_App)
 import ProtoMonad
@@ -36,7 +36,7 @@ appCommInit domid = do
   return $ ProtoEnv 0 myPri ents pubs 0 0 0 1
 
 
-main = appmain' 1
+--main = appmain' 1
 
 appmain' :: Int -> IO ()
 appmain' pId = do
