@@ -35,5 +35,5 @@ library
                       io-streams
                       
 
-  hs-source-dirs:     ./, ../apprasier, ../attester
+  hs-source-dirs:     ./, ../apprasier, ../attester, ../shared
   default-language:    Haskell2010
