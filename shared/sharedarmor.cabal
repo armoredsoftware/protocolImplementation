@@ -25,7 +25,17 @@ library
                       stm,
                       scotty,
                       http-streams,
-                      bytestring
+                      bytestring,
+                      unordered-containers,
+                      base64,
+                      text,
+                      aeson,
+                      transformers,
+                      random,
+                      RSA,
+                      cipher-aes,
+                      binary,
+                      tpmEmulator
                       
 
   hs-source-dirs:     ./, ../apprasier, ../attester, ../shared
