@@ -24,8 +24,16 @@ library
        --                ExistentialQuantification
   build-depends:      stm,
                       tpmEmulator,
-                      base
+                      base,
+                      time,
+                      random,
+                      text,
+                      scotty,
+                      bytestring,
+                      network-info,
+                      aeson,
+                      io-streams
                       
 
-  -- hs-source-dirs:
+  hs-source-dirs:     ./, ../apprasier, ../attester
   default-language:    Haskell2010

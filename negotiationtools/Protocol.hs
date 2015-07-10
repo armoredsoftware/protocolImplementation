@@ -25,7 +25,7 @@ import Data.Maybe
 import System.IO                 
 import System.Timeout
 import qualified AttesterMain as AttSubProto (attmain)
-import qualified AppMain as AppSubProto (appmain)  
+import qualified AppraiserMain as AppSubProto (appmain)  
 	      
 runExecute :: Process -> Entity ->IO (Process, ArmoredState)
 runExecute proto executor = do
