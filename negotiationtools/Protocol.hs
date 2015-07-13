@@ -15,7 +15,7 @@ import Control.Concurrent.MVar
 import Control.Concurrent.STM.TMVar
 import Control.Concurrent.STM
 import qualified Web.Scotty as Scotty
-import ProtoTypes
+import ArmoredTypes
 import CommunicationNegotiator
 import CommTools hiding (Result)
 import Control.Concurrent
