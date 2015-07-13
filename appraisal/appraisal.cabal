@@ -24,7 +24,8 @@ library
                         crypto-api,
                         mtl,
                         cipher-aes,
-                        sharedarmor
+                        sharedarmor,
+                        random
                         
   --Main-is: AppraiserMain.hs
   ghc-options: -O
