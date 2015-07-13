@@ -8,7 +8,7 @@ import Control.Monad.State.Strict hiding (get, put)
 import Data.ByteString.Lazy (ByteString, pack, append, empty, cons, fromStrict, length)
 import TPM
 import qualified Network.Http.Client as HttpClient
-import qualified Demo3Shared as Demo3
+--import qualified Demo3Shared as Demo3
 import VChanUtil
 import Control.Concurrent.MVar
 import Control.Concurrent.STM.TMVar
@@ -114,13 +114,21 @@ data Process = Send Armored Armored Process
 --putOnArmor ..
 data EvidenceDescriptor = D0 | D1 | D2
                         | DONE deriving(Eq, Ord, Show)
+
+type Evidence = [EvidencePiece]
+
+data EvidencePiece = M0 M0Rep 
+                   | M1 M1Rep
+                   | M2 M2Rep 
+                   | OK deriving (Eq, Ord, Show)
+
 data Armored = Var String
-	     | ARequest Request
- 	     | AResponse Response
+	  --   | ARequest Request
+ 	  --   | AResponse Response
              | AEvidenceDescriptor EvidenceDescriptor
 	     | AEvidencePiece EvidencePiece
-	     | ACARequest CARequest
-	     | ACAResponse CAResponse
+	    -- | ACARequest CARequest
+	     -- | ACAResponse CAResponse
 	     | APair Armored Armored
 --	     | AKey Key  --because show complains commented out.
 	     | AEncrypted ByteString
@@ -281,8 +289,7 @@ type SymmKey = TPM_SYMMETRIC_KEY
 --Encrypted text
 type CipherText = ByteString;
 
-type EvidenceDescriptor = [Int]
-type Evidence = [Int]
+
 
 type Signature = ByteString;
 data SignedData a = SignedData {
@@ -330,3 +337,9 @@ data TPM_DATA =
 
 
               deriving (Show)
+
+
+
+type M0Rep = ByteString
+type M1Rep = ByteString
+type M2Rep = ByteString

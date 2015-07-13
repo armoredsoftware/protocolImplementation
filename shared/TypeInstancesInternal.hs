@@ -8,10 +8,20 @@ import Control.Monad.State.Strict hiding (get, put)
 import Data.ByteString.Lazy (ByteString, pack, append, empty, cons, fromStrict, length)
 import TPM
 import qualified Network.Http.Client as HttpClient
-import qualified Demo3Shared as Demo3
+--import qualified Demo3Shared as Demo3
 import VChanUtil
 
 import TypesInternal
+
+import qualified Data.ByteString as B (ByteString)
+import qualified Data.Text.Encoding as TE
+import qualified Data.ByteString.Base64 as Base64
+import qualified Data.Text as T
+
+
+
+
+
 
 import Control.Concurrent.MVar
 import Control.Concurrent.STM.TMVar
@@ -338,6 +348,7 @@ instance FromJSON ArmoredData where
                           | HM.member "AAFailure" o = AAFailure <$> o .: "AAFailure"
 
 --Binary instance necessary for communication, encryption, and decryption(or a combination of these).
+{-
 instance Binary ArmoredData where
   put (ANonce n) = do put (0::Word8)
                       put n
@@ -420,7 +431,7 @@ instance Binary EntityInfo where
            ip <- get
            let vchan = undefined --vchan <- get  --IS THIS OK??
            return $ EntityInfo name ip vchan
-
+-}
 instance (ToJSON a) => ToJSON (SignedData a) where
   toJSON (s) = object
     ["dat" .= toJSON (dat s)
@@ -440,3 +451,53 @@ instance (Binary a) => Binary (SignedData a) where
   get = do a <- get
            b <- get
            return $ SignedData a b
+
+
+instance ToJSON EvidenceDescriptor where
+	toJSON D0 = DA.String "D0"
+	toJSON D1 = DA.String "D1"
+	toJSON D2 = DA.String "D2"
+	toJSON DONE = DA.String "DONE"
+instance FromJSON EvidenceDescriptor where
+	parseJSON (DA.String "D0")   = pure D0
+	parseJSON (DA.String "D1")   = pure D1
+	parseJSON (DA.String "D2")   = pure D2
+	parseJSON (DA.String "DONE") = pure DONE
+
+
+instance ToJSON EvidencePiece where
+	toJSON (M0 rep0) = object [ "M0" .= encodeToText (toStrict rep0) ]
+	toJSON (M1 rep1) = object [ "M1" .= encodeToText (toStrict rep1) ]
+	toJSON (M2 rep2) = object [ "M2" .= encodeToText (toStrict rep2) ]
+	toJSON OK = DA.String "OK"
+instance FromJSON EvidencePiece where
+	parseJSON (DA.Object o) | HM.member "M0" o = M0 <$> ((o .: "M0") >>= decodeFromTextL)
+				| HM.member "M1" o = M1 <$> ((o .: "M1") >>= decodeFromTextL)
+				| HM.member "M2" o = M2 <$> ((o .: "M2") >>= decodeFromTextL)
+	parseJSON (DA.String "OK") = pure OK
+
+
+
+instance ToJSON B.ByteString where
+	toJSON = DA.String . encodeToText
+instance FromJSON B.ByteString where
+	parseJSON (DA.String str) = pure $ decodeFromText str	
+				 		         
+encodeToText :: B.ByteString -> T.Text
+encodeToText = TE.decodeUtf8 . Base64.encode
+
+decodeFromText :: T.Text -> B.ByteString
+decodeFromText = {-either fail return .-} Base64.decodeLenient . TE.encodeUtf8
+
+decodeFromTextL :: (Monad m) => T.Text -> m ByteString
+decodeFromTextL x = let bs = decodeFromText x in
+		       return (fromStrict bs)  
+
+decodeFromTextLStayStrict :: (Monad m) => T.Text -> m B.ByteString
+decodeFromTextLStayStrict x = let bs = decodeFromText x in
+		       return (bs)  
+
+
+decodeFromTextL' :: T.Text -> ByteString
+decodeFromTextL' x = let bs = decodeFromText x in
+		       fromStrict bs  
