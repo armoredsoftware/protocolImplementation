@@ -10,10 +10,20 @@ Cabal-Version:          >= 1.2
 Build-type:             Simple
 
 library
-  exposed-moduels:      Attestation
+  exposed-modules:      Attestation
   hs-source-dirs:       ./, ../protoMonad, ../provisioning
-  build-depends:        
-                        
+  build-depends:        base,
+                        bytestring,
+                        containers,
+                        transformers,
+                        binary,
+                        random,
+                        RSA,
+                        tpmEmulator,
+                        VChanUtil,
+                        mtl,
+                        SHA,
+                        crypto-api
                         
  -- Main-is: AttesterMain.hs
   ghc-options: -O
