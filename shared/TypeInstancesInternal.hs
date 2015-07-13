@@ -7,17 +7,20 @@ import Control.Monad
 import Control.Monad.State.Strict hiding (get, put)
 import Data.ByteString.Lazy (ByteString, pack, append, empty, cons, fromStrict, length)
 import TPM
+import TPM.Types
 import qualified Network.Http.Client as HttpClient
 --import qualified Demo3Shared as Demo3
 import VChanUtil
 
 import TypesInternal
 
+{-
 import qualified Data.ByteString as B (ByteString)
 import qualified Data.Text.Encoding as TE
 import qualified Data.ByteString.Base64 as Base64
 import qualified Data.Text as T
-
+-}
+import ByteStringJSON
 
 
 
@@ -477,27 +480,3 @@ instance FromJSON EvidencePiece where
 	parseJSON (DA.String "OK") = pure OK
 
 
-
-instance ToJSON B.ByteString where
-	toJSON = DA.String . encodeToText
-instance FromJSON B.ByteString where
-	parseJSON (DA.String str) = pure $ decodeFromText str	
-				 		         
-encodeToText :: B.ByteString -> T.Text
-encodeToText = TE.decodeUtf8 . Base64.encode
-
-decodeFromText :: T.Text -> B.ByteString
-decodeFromText = {-either fail return .-} Base64.decodeLenient . TE.encodeUtf8
-
-decodeFromTextL :: (Monad m) => T.Text -> m ByteString
-decodeFromTextL x = let bs = decodeFromText x in
-		       return (fromStrict bs)  
-
-decodeFromTextLStayStrict :: (Monad m) => T.Text -> m B.ByteString
-decodeFromTextLStayStrict x = let bs = decodeFromText x in
-		       return (bs)  
-
-
-decodeFromTextL' :: T.Text -> ByteString
-decodeFromTextL' x = let bs = decodeFromText x in
-		       fromStrict bs  

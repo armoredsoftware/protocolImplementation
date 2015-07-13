@@ -21,22 +21,21 @@ library
        --                ExistentialQuantification
   build-depends:      base,
                       mtl,
-                      stm,
-                      scotty,
-                      http-streams,
                       bytestring,
                       unordered-containers,
                       text,
-                      base64-bytestring,
+                      bytestring-json,
                       transformers,
                       aeson,
                       random,
-                      cipher-aes,
                       RSA,
                       binary,
                       tpmEmulator,
-                      VChanUtil
+                      VChanUtil,
+                      http-streams,
+                      scotty,
+                      stm
                       
 
-  hs-source-dirs:     ./, ../apprasier, ../attester, ../shared
+  hs-source-dirs:     
   default-language:    Haskell2010
