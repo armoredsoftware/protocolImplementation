@@ -1,6 +1,6 @@
-Name:                   attester
+Name:                   attestation
 Version:                0.1
-Synopsis:               appraiser main executable
+Synopsis:               appraiser library
 License:                BSD3
 License-file:           LICENSE
 Author:                 Adam Petz
@@ -9,26 +9,11 @@ Cabal-Version:          >= 1.2
 
 Build-type:             Simple
 
-executable              Attester
+library
+  exposed-moduels:      Attestation
   hs-source-dirs:       ./, ../protoMonad, ../provisioning
-  build-depends:        base >= 4,
-                        mtl,
-                        transformers,
-                        cipher-aes,
-                        crypto-api,
-                        directory,
-                        containers,
-                        bytestring,
-                        binary,
-                        network < 2.6,
-                        random,
-                        --network-bytestring,
-                        HsOpenSSL,
-                        SHA,
-                        RSA,
-                        parsec >= 3,
-                        filepath,
-                        VChanUtil,
-                        tpmEmulator
-  Main-is: AttesterMain.hs
+  build-depends:        
+                        
+                        
+ -- Main-is: AttesterMain.hs
   ghc-options: -O
