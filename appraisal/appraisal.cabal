@@ -1,4 +1,4 @@
-Name:                   appraisermain
+Name:                   appraisal
 Version:                0.1
 Synopsis:               appraiser main executable
 License:                BSD3
@@ -10,7 +10,7 @@ Cabal-Version:          >= 1.2
 Build-type:             Simple
 
 library
-  exposed-modules:      AppraiserMain
+  exposed-modules:      Appraisal
   hs-source-dirs:       ./, ../protoMonad, ../provisioning
   build-depends:        base >= 4,
                         mtl,

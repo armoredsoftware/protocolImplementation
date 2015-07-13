@@ -1,4 +1,4 @@
-module AppraiserMain where --AppMain where
+module Appraisal where --AppMain where
 
 import CAProtoMain (caEntity_App)
 import ProtoMonad
