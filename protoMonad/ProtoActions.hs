@@ -1,7 +1,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 module ProtoActions where
 
-import ProtoTypes
+import ArmoredTypes
 import ProtoMonad
 import VChanUtil
 import TPM.Types

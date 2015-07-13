@@ -2,7 +2,7 @@
 
 module ProtoMonad where
 
-import ProtoTypes
+import ArmoredTypes
 import VChanUtil
 
 import Prelude hiding (lookup)
