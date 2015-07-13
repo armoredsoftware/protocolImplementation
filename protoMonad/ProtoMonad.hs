@@ -4,6 +4,7 @@ module ProtoMonad where
 
 import ArmoredTypes
 import VChanUtil
+import CommTools(sendG')
 
 import Prelude hiding (lookup)
 import Data.Map hiding (foldl)
@@ -38,7 +39,7 @@ protoIs = do
   id <- T.asks protoId
   return id
 
-getEntityChannel :: EntityId -> Proto LibXenVChan
+getEntityChannel :: EntityId -> Proto Channel
 getEntityChannel id = do
   eInfo <- getEntityInfo id
   return $ chan eInfo

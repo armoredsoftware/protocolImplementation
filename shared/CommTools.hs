@@ -14,26 +14,27 @@ import System.IO.Streams (InputStream, OutputStream, stdout)
 import qualified System.IO.Streams as Streams
 import qualified Data.Aeson as A
 import Data.Aeson
-import qualified Demo3Shared as AD
-import Demo3Shared
-import ProtoTypes hiding (Result)
-import qualified ProtoTypes as ProtoTypes
+import ArmoredTypes hiding (Result)
+--import qualified Demo3Shared as AD
+--import Demo3Shared
+--import ProtoTypes hiding (Result)
+--import qualified ProtoTypes as ProtoTypes
 import System.IO
 import Data.Word
 import Control.Concurrent.STM.TMVar
 import Control.Monad.STM
 import TPM.Types (TPM_PCR_SELECTION, TPM_PCR_COMPOSITE, TPM_IDENTITY_CONTENTS, TPM_PUBKEY)
-import qualified ProtoTypes as Ad 
+--import qualified ProtoTypes as Ad
 import Data.Bits (shiftR)
-import Network.Info 
+import Network.Info
 
 import System.Timeout
-import qualified Data.ByteString as B 
+import qualified Data.ByteString as B
 import qualified Data.ByteString.Char8 as Char8
 
 import Data.Word (Word16)
 
---foreign export converseWithScottyCA :: AD.CARequest -> IO (Either String AD.CAResponse)
+--foreign export converseWithScottyCA :: CARequest -> IO (Either String CAResponse)
 
 --import qualified System.IO.Streams.Internal as StreamsI
 type ID = String
@@ -43,76 +44,76 @@ ip="10.100.0.6" -- "192.168.122.1"
 
 
 armoredToShared :: Armored -> Shared
-armoredToShared (ARequest req)              = WRequest req
-armoredToShared (AResponse resp)            = WResponse resp
+--armoredToShared (ARequest req)              = WRequest req
+--armoredToShared (AResponse resp)            = WResponse resp
 armoredToShared (AEvidenceDescriptor evdes) = WEvidenceDescriptor evdes
 armoredToShared (AEvidencePiece evpiece)    = WEvidencePiece evpiece
-armoredToShared (ACARequest careq)          = WCARequest careq
-armoredToShared (ACAResponse caresp)	    = WCAResponse caresp
-armoredToShared (ANRequestV nreq)           = WNRequest nreq 
+--armoredToShared (ACARequest careq)          = WCARequest careq
+--armoredToShared (ACAResponse caresp)	    = WCAResponse caresp
+armoredToShared (ANRequestV nreq)           = WNRequest nreq
 armoredToShared (ANResponse nres)           = WNResponse nres
-armoredToShared (ArmoredAdamList x)         = WAdamDataList x 
+armoredToShared (ArmoredAdamList x)         = WAdamDataList x
 armoredToShared _			    = Result False
 
-armoredToAdam :: Armored -> [Ad.ArmoredData]
-armoredToAdam (ArmoredAdamList x) = x 
-armoredToAdam x@_             = [Ad.AAFailure $ "Error: Wrong Armored type converted to ArmoredData: " ++ (show x)]
+armoredToAdam :: Armored -> [ArmoredData]
+armoredToAdam (ArmoredAdamList x) = x
+armoredToAdam x@_             = [AAFailure $ "Error: Wrong Armored type converted to ArmoredData: " ++ (show x)]
 
-adamToShared :: [Ad.ArmoredData] -> Shared
-adamToShared adls = WAdamDataList adls 
+adamToShared :: [ArmoredData] -> Shared
+adamToShared adls = WAdamDataList adls
 {-
 adamToShared (Ad.ANonce n) = WANonce n
 adamToShared (Ad.AEntityInfo ei) = WAEntityInfo ei --EntityInfo
-adamToShared (Ad.ACipherText ct)= WACipherText  ct 
+adamToShared (Ad.ACipherText ct)= WACipherText  ct
 adamToShared (Ad.ATPM_PCR_SELECTION t) = WATPM_PCR_SELECTION t
 adamToShared (Ad.ATPM_PCR_COMPOSITE t) = WATPM_PCR_COMPOSITE t
-adamToShared (Ad.ATPM_IDENTITY_CONTENTS t) = WATPM_IDENTITY_CONTENTS t 
+adamToShared (Ad.ATPM_IDENTITY_CONTENTS t) = WATPM_IDENTITY_CONTENTS t
 adamToShared (Ad.ATPM_PUBKEY t) = WATPM_PUBKEY t
 adamToShared (Ad.ASignedData sd) = WASignedData sd -- (SignedData ArmoredData)
-adamToShared (Ad.ASignature s) = WASignature s 
+adamToShared (Ad.ASignature s) = WASignature s
 adamToShared (Ad.AEvidenceDescriptor e) = WAEvidenceDescriptor e
-adamToShared (Ad.AEvidence e) = WAEvidence e 
+adamToShared (Ad.AEvidence e) = WAEvidence e
 -}
 
 sharedToArmored :: Shared -> Armored
-sharedToArmored (WRequest req)              = ARequest req
-sharedToArmored (WResponse resp)            = AResponse resp
+--sharedToArmored (WRequest req)              = ARequest req
+--sharedToArmored (WResponse resp)            = AResponse resp
 sharedToArmored (WEvidenceDescriptor evdes) = AEvidenceDescriptor evdes
 sharedToArmored (WEvidencePiece evpiece)    = AEvidencePiece evpiece
-sharedToArmored (WCARequest careq)          = ACARequest careq
-sharedToArmored (WCAResponse caresp)	    = ACAResponse caresp
-sharedToArmored (WNRequest nreq)            = ANRequestV nreq
-sharedToArmored (WNResponse nres)           = ANResponse nres
-sharedToArmored (WAdamDataList adls)        = ArmoredAdamList adls 
-sharedToArmored x@_			    = AFailure ("attempted to convert to non-supported armored type: " ++ (show x))        
+--sharedToArmored (WCARequest careq)          = ACARequest careq
+--sharedToArmored (WCAResponse caresp)	    = ACAResponse caresp
+--sharedToArmored (WNRequest nreq)            = ANRequestV nreq
+--sharedToArmored (WNResponse nres)           = ANResponse nres
+sharedToArmored (WAdamDataList adls)        = ArmoredAdamList adls
+sharedToArmored x@_			    = AFailure ("attempted to convert to non-supported armored type: " ++ (show x))
 
-sharedToAdam :: Shared -> [Ad.ArmoredData]
+sharedToAdam :: Shared -> [ArmoredData]
 --sharedToAdam (WAdamData d) = [d]
-sharedToAdam (WAdamDataList ls) = ls  
-sharedToAdam x@_           = [Ad.AAFailure ("attempted to convert to non-supported ArmoredData type in method sharedToAdam: " ++ (show x))]
+sharedToAdam (WAdamDataList ls) = ls
+sharedToAdam x@_           = [AAFailure ("attempted to convert to non-supported ArmoredData type in method sharedToAdam: " ++ (show x))]
 
 {-
 sharedToAdam (WANonce n) = Ad.ANonce n
-sharedToAdam (WAEntityInfo e) = Ad.AEntityInfo e 
+sharedToAdam (WAEntityInfo e) = Ad.AEntityInfo e
 sharedToAdam (WACipherText c) = Ad.ACipherText c
-sharedToAdam (WATPM_PCR_SELECTION t) = Ad.ATPM_PCR_SELECTION t 
-sharedToAdam (WATPM_PCR_COMPOSITE t) = Ad.ATPM_PCR_COMPOSITE t 
-sharedToAdam (WATPM_IDENTITY_CONTENTS t) = Ad.ATPM_IDENTITY_CONTENTS t 
+sharedToAdam (WATPM_PCR_SELECTION t) = Ad.ATPM_PCR_SELECTION t
+sharedToAdam (WATPM_PCR_COMPOSITE t) = Ad.ATPM_PCR_COMPOSITE t
+sharedToAdam (WATPM_IDENTITY_CONTENTS t) = Ad.ATPM_IDENTITY_CONTENTS t
 sharedToAdam (WATPM_PUBKEY k) = (Ad.ATPM_PUBKEY k)
 sharedToAdam (WASignedData sd) = Ad.ASignedData sd
-sharedToAdam (WASignature s) = Ad.ASignature s 
-sharedToAdam (WAEvidenceDescriptor e) = Ad.AEvidenceDescriptor e 
-sharedToAdam (WAEvidence e) = Ad.AEvidence e 
+sharedToAdam (WASignature s) = Ad.ASignature s
+sharedToAdam (WAEvidenceDescriptor e) = Ad.AEvidenceDescriptor e
+sharedToAdam (WAEvidence e) = Ad.AEvidence e
 -}
 
 
-data Shared   = WRequest AD.Request
-              | WResponse AD.Response
-	      | WEvidenceDescriptor AD.EvidenceDescriptor
+data Shared   = --WRequest AD.Request
+              -- | WResponse AD.Response
+	      {-|-} WEvidenceDescriptor EvidenceDescriptor
 	      | WEvidencePiece EvidencePiece
-	      | WCARequest CARequest
-	      | WCAResponse CAResponse
-	      | WNonce Integer 
+--	      | WCARequest CARequest
+--	      | WCAResponse CAResponse
+	      | WNonce Integer
 	      | WCommRequest CommRequest
               | Result Bool
               | VChanFailure String
@@ -123,25 +124,25 @@ data Shared   = WRequest AD.Request
               | WNResponse NResponse
 ------------------------------------ADAM DATA
             --  | WAdamData Ad.ArmoredData
-              | WAdamDataList [Ad.ArmoredData]
+              | WAdamDataList [ArmoredData]
 {-
               | WANonce Ad.Nonce
               | WAEntityInfo Ad.EntityInfo
-              | WACipherText Ad.CipherText 
+              | WACipherText Ad.CipherText
               | WATPM_PCR_SELECTION TPM_PCR_SELECTION
               | WATPM_PCR_COMPOSITE TPM_PCR_COMPOSITE
               | WATPM_IDENTITY_CONTENTS TPM_IDENTITY_CONTENTS
               | WATPM_PUBKEY TPM_PUBKEY
               | WASignedData (Ad.SignedData Ad.ArmoredData)
               | WASignature Ad.Signature
-              | WAEvidenceDescriptor Ad.EvidenceDescriptor 
+              | WAEvidenceDescriptor Ad.EvidenceDescriptor
               | WAEvidence Ad.Evidence
 -}
 instance Show Shared where
-    show (WRequest app) = "Appraisal: " ++ show app
-    show (WResponse att) = "Attestation: " ++ show att
+--    show (WRequest app) = "Appraisal: " ++ show app
+--    show (WResponse att) = "Attestation: " ++ show att
     show (WEvidenceDescriptor evdes) = "EvidenceDescriptor: " ++ (show evdes)
-    show (WEvidencePiece evPiece) = "EvidencePiece: " ++ (show evPiece) 
+    show (WEvidencePiece evPiece) = "EvidencePiece: " ++ (show evPiece)
     show (Result True) = "Appraisal succeeded."
     show (Result False) = "Appraisal failed."
     show (VChanFailure str) = "VChanFailure: " ++ str
@@ -155,15 +156,15 @@ instance Show Shared where
 --  show (WCommRequest commreq) = "WCommRequest " ++ (show commreq)
 --  show (WPort p) = "WPort: " ++ (show p)
 --  show (WPortRequest pr) = "WPortRequest " ++ (show pr)
-   
+
 instance ToJSON Shared where
-	toJSON (WRequest req) = object [ "WRequest" .= toJSON req]
-	toJSON (WResponse resp) = object [ "WResponse" .= toJSON resp ]
+--	toJSON (WRequest req) = object [ "WRequest" .= toJSON req]
+--	toJSON (WResponse resp) = object [ "WResponse" .= toJSON resp ]
 	toJSON (Result bool) = object [ "Result" .= toJSON bool]
 	toJSON (WEvidenceDescriptor evdes) = object [ "WEvidenceDescriptor" .= toJSON evdes ]
 	toJSON (WEvidencePiece evPiece) = object ["WEvidencePiece" .= toJSON evPiece]
-	toJSON (WCARequest caRequest) = object [ "WCARequest" .= toJSON caRequest ]
-	toJSON (WCAResponse caResponse) = object [ "WCAResponse" .= toJSON caResponse]
+--	toJSON (WCARequest caRequest) = object [ "WCARequest" .= toJSON caRequest ]
+--	toJSON (WCAResponse caResponse) = object [ "WCAResponse" .= toJSON caResponse]
 	toJSON (WNonce nonce)		= object [ "WNonce" .= nonce]
 	toJSON (WCommRequest commreq) = object ["WCommRequest" .= toJSON commreq]
 	toJSON (VChanFailure str)          = object ["VChanFailure" .= toJSON str]
@@ -188,13 +189,13 @@ instance ToJSON Shared where
         toJSON (WAEvidence e)           = object ["WAEvidence" .= toJSON e]
 -}
 instance FromJSON Shared where
-	parseJSON (A.Object o)  | HM.member "WRequest" o = WRequest <$> o .: "WRequest"
-				| HM.member "WResponse" o = WResponse <$> o .: "WResponse"
+	parseJSON (A.Object o)  -- | HM.member "WRequest" o = WRequest <$> o .: "WRequest"
+				-- | HM.member "WResponse" o = WResponse <$> o .: "WResponse"
 				| HM.member "Result" o = Result <$> o .: "Result"
-				| HM.member "WEvidenceDescriptor" o = WEvidenceDescriptor <$> o .: "WEvidenceDescriptor"
+                                | HM.member "WEvidenceDescriptor" o = WEvidenceDescriptor <$> o .: "WEvidenceDescriptor"
 				| HM.member "WEvidencePiece" o      = WEvidencePiece <$> o .: "WEvidencePiece"
-				| HM.member "WCARequest" o          = WCARequest <$> o .: "WCARequest"
-				| HM.member "WCAResponse" o         = WCAResponse <$> o .: "WCAResponse"
+--				| HM.member "WCARequest" o          = WCARequest <$> o .: "WCARequest"
+--				| HM.member "WCAResponse" o         = WCAResponse <$> o .: "WCAResponse"
 				| HM.member "WNonce" o 	            = WNonce <$> o .: "WNonce"
 				| HM.member "WCommRequest" o = WCommRequest <$> o .: "WCommRequest"
 				| HM.member "HttpSuccess" o  = HttpSuccess <$> o .: "HttpSuccess"
@@ -217,18 +218,18 @@ instance FromJSON Shared where
                                 | HM.member "WASignature" o = WASignature   <$> ((o .: "WASignature") >>= decodeFromTextL)
                                 | HM.member "WAEvidenceDescriptor" o = WAEvidenceDescriptor <$> o .: "WAEvidenceDescriptor"
                                 | HM.member "WAEvidence" o = WAEvidence <$> o .: "WAEvidence"
-  -}  
+  -}
 
 maxTime = 10000000
 receiveG :: Channel -> IO Armored
 receiveG chan = do
   mArmored <- timeout maxTime $ receiveGHelper chan
-  case mArmored of 
+  case mArmored of
     Nothing -> return $ AFailure "Receive Failed: timed out."
-    Just a  -> return a  
-  
-receiveGHelper :: Channel -> IO Armored 
-receiveGHelper chan = do 
+    Just a  -> return a
+
+receiveGHelper :: Channel -> IO Armored
+receiveGHelper chan = do
  case chan of
   (Channel ent (VChanInfo maybeChan))      -> case maybeChan of
      Nothing -> do
@@ -247,69 +248,69 @@ receiveGHelper chan = do
     unitval <- atomically $ takeTMVar tmvUnit
     msgls <- atomically $ takeTMVar tmvMsgs
     case msgls of
-      [] -> do 
+      [] -> do
         let str = "Error in receive. Was able to take unitTMVar but msglist was empty"
         putStrLn str
         atomically $ putTMVar tmvMsgs msgls
         return (AFailure str)
-      (a:[]) -> do 
+      (a:[]) -> do
         --don't put unitTMVar back because list is empty
         --release tmvMsgs
         atomically $ putTMVar tmvMsgs []
         return a
-      (a:as) -> do 
+      (a:as) -> do
         --DO put the unittmvar back this time because there are more messages.
         atomically $ do
                        putTMVar tmvUnit ()
                        putTMVar tmvMsgs as
                        return a
 
-receiveG' :: Channel -> IO [Ad.ArmoredData]
+receiveG' :: Channel -> IO [ArmoredData]
 receiveG' chan = do
   mArmored <- timeout maxTime $ receiveGHelper' chan
-  case mArmored of 
-    Nothing -> return $ [Ad.AAFailure "Receive Failed: timed out."]
-    Just a  -> return a  
+  case mArmored of
+    Nothing -> return $ [AAFailure "Receive Failed: timed out."]
+    Just a  -> return a
 
-receiveGHelper' :: Channel -> IO [Ad.ArmoredData]
-receiveGHelper' chan = do 
+receiveGHelper' :: Channel -> IO [ArmoredData]
+receiveGHelper' chan = do
  case chan of
   (Channel ent (VChanInfo maybeChan))      -> case maybeChan of
      Nothing -> do
        let str = "ERROR: no vchannel stored!! I can't receive on nothing!"
        putStrLn str
-       return [(Ad.AAFailure str)]
+       return [(AAFailure str)]
      Just c  -> do
        eitherShared <- receiveShared c
        case eitherShared of
         Left err -> do
           putStrLn ("ERROR: " ++ err)
-          return [(Ad.AAFailure ("RECEIVE MESSAGE FAIL: " ++ err))]
+          return [(AAFailure ("RECEIVE MESSAGE FAIL: " ++ err))]
         Right shared -> return (sharedToAdam shared)
   (Channel ent (HttpInfo _ _ _ _ maybeConn1 tmvMsgs tmvUnit)) -> do
     putStrLn "Waiting to receive message..."
     unitval <- atomically $ takeTMVar tmvUnit
     msgls <- atomically $ takeTMVar tmvMsgs
     case msgls of
-      [] -> do 
+      [] -> do
         let str = "Error in receive. Was able to take unitTMVar but msglist was empty"
         putStrLn str
         atomically $ putTMVar tmvMsgs msgls
-        return [(Ad.AAFailure str)]
-      (a:[]) -> do 
+        return [(AAFailure str)]
+      (a:[]) -> do
         --don't put unitTMVar back because list is empty
         --release tmvMsgs
         atomically $ putTMVar tmvMsgs []
         return (armoredToAdam a)
-      (a:as) -> do 
+      (a:as) -> do
         --DO put the unittmvar back this time because there are more messages.
         atomically $ do
                        putTMVar tmvUnit ()
                        putTMVar tmvMsgs as
                        return (armoredToAdam a)
-   -- let str = "HTTPINFO??? I don't know what to do with that yet."   
+   -- let str = "HTTPINFO??? I don't know what to do with that yet."
    -- putStrLn str
-   -- return (AFailure str) 
+   -- return (AFailure str)
 
 sendG :: Channel -> Armored -> IO ()
 sendG chan armored = do
@@ -318,27 +319,27 @@ sendG chan armored = do
                          Nothing -> putStrLn "ERROR: no vchannel stored!! I can't send on nothing!"
                          Just c  -> sendShared' c (armoredToShared armored)
                        (Channel ent (HttpInfo _ _ mTheirPort theirIP maybeConn1 _ _)) ->do
-                          case mTheirPort of 
+                          case mTheirPort of
                             Nothing -> do
                               let err = "no port of theirs given!!!! I'm trying to send here!!!"
                               putStrLn err
-                            Just theirPort -> do 
-                              curConn <- sendHttp (armoredToShared armored) theirIP theirPort 
+                            Just theirPort -> do
+                              curConn <- sendHttp (armoredToShared armored) theirIP theirPort
                               putStrLn "Tried to send http!!" -- "HTTPINFO??? I don't know what to do with that yet."
 
-sendG' :: Channel -> [Ad.ArmoredData] -> IO ()
+sendG' :: Channel -> [ArmoredData] -> IO ()
 sendG' chan adam = do
                      case chan of
                        (Channel ent (VChanInfo maybeChan))      -> case maybeChan of
                          Nothing -> putStrLn "ERROR: no vchannel stored!! I can't send on nothing!"
                          Just c  -> sendShared' c (adamToShared adam)
                        (Channel ent (HttpInfo _ _ mTheirPort theirIP maybeConn1 _ _)) ->do
-                          case mTheirPort of 
+                          case mTheirPort of
                             Nothing -> do
                               let err = "no port of theirs given!!!! I'm trying to send here!!!"
                               putStrLn err
-                            Just theirPort -> do 
-                              curConn <- sendHttp (adamToShared adam) theirIP theirPort 
+                            Just theirPort -> do
+                              curConn <- sendHttp (adamToShared adam) theirIP theirPort
                               putStrLn "Tried to send http!!" -- "HTTPINFO??? I don't know what to do with that yet."
 
 sendShared :: Int -> Shared -> IO LibXenVChan
@@ -350,23 +351,23 @@ sendShared id shared = do
 sendShared' :: LibXenVChan -> Shared -> IO ()
 sendShared' chan shared = do
 			   logger <- createLogger
-			   sendChunkedMessageByteString logger chan (toStrict (jsonEncode shared))
+			   sendChunkedMessageByteString logger chan (toStrict (Data.Aeson.encode shared))
 			   return ()
-			   
+
 receiveShared :: LibXenVChan -> IO (Either String Shared)
 receiveShared chan = do
 			ctrlWait chan
 			logger <- createLogger
 			bytes <- readChunkedMessageByteString logger chan
-			let shared =  jsonEitherDecode (fromStrict bytes) :: Either String Shared
-			return shared			   
-sendHttp :: Shared -> Hostname -> Port ->IO Connection 
+			let shared =  Data.Aeson.eitherDecode (fromStrict bytes) :: Either String Shared
+			return shared
+sendHttp :: Shared -> Hostname -> Port ->IO Connection
 sendHttp shared iip pport = do
 			    c <- openConnection iip pport
 			    sendHttp' shared c
 			    return c
-			    
-		    
+
+
 sendHttp' :: Shared -> Connection -> IO ()
 sendHttp' shared c = do
 			    q <- buildRequest $ do
@@ -374,13 +375,13 @@ sendHttp' shared c = do
 			    	  setAccept "text/html/json"
 			    	  setContentType "application/x-www-form-urlencoded"
 			    --Prelude.putStrLn ( "Request: " ++ (show req))
-			    let nvs = [("request", (toStrict (AD.jsonEncode shared)))]
+			    let nvs = [("request", (toStrict (Data.Aeson.encode shared)))]
 			    --Prelude.putStrLn "about to send request"
 			    let x = encodedFormBody nvs
 			    --print "Made it here yaaaaaaaaaaaay"
 			    sendRequest c q (x)
 			    return ()
-               
+
 receiveHttp :: Connection -> IO (Either String Shared)
 receiveHttp c = receiveResponse c (\p i -> do
     			  x <- Streams.read i
@@ -388,11 +389,11 @@ receiveHttp c = receiveResponse c (\p i -> do
     			     (Nothing) -> return (Left "Error performing Streams.read")
     			     (Just something) -> do
 	     			 --print something
-	     			 let caresp = (AD.jsonEitherDecode (fromStrict something) :: Either String Shared)
+	     			 let caresp = (Data.Aeson.eitherDecode (fromStrict something) :: Either String Shared)
 	     			 case caresp of
 	     			 	(Left err) -> return (Left ("Error decoding CAResponse. Error was: " ++ err))
 	     			 	(Right r)  -> return (Right r)
-		  )			    
+		  )
 
 
 mylift :: a -> IO a
@@ -400,83 +401,83 @@ mylift x = return x
 
 
 logf ::String -> IO ()
-logf m = do 
+logf m = do
   h <- openFile "log.1" AppendMode
-  hPutStrLn h (m ++ "\n") 
+  hPutStrLn h (m ++ "\n")
   hClose h
 
 logf' :: String -> ArmoredStateTMonad ()
 logf' = (liftIO . logf)
 
---uriAuth = UR.URIAuth "" "129.237.123.78" ":3000" 
+--uriAuth = UR.URIAuth "" "129.237.123.78" ":3000"
 --uri = UR.URI "http:" (Just uriAuth) "" "" ""
 
 --f = Base.Request uri Base.POST [] "This is the body."
 --rq = Base.mkRequest Base.POST f
 
 
-doExport' :: String -> AD.CARequest ->  IO ()
+{-doExport' :: String -> CARequest ->  IO ()
 doExport' fileName comp =
                    do handle <- openFile fileName WriteMode
                       hPutStrLn handle $ show comp
-                      hClose handle
-       
-       
-caFile = "caFile.txt"    
-           
-readComp' :: IO AD.CARequest
+                      hClose handle -}
+
+
+caFile = "caFile.txt"
+
+{-readComp' :: IO CARequest
 readComp' = do
   handle <- openFile caFile ReadMode
   compString <- hGetLine handle
-  let comp :: AD.CARequest
+  let comp :: CARequest
       comp = read compString
   hClose handle
-  return comp
+  return comp -}
 
 
 getMyIP :: IO IPv4
-getMyIP = do 
-  ls <- getNetworkInterfaces 
-  let ipp = getMyIPHelper "eth0" ls 
+getMyIP = do
+  ls <- getNetworkInterfaces
+  let ipp = getMyIPHelper "eth0" ls
   if ( (show) ipp) /= "0.0.0.0"
     then return (ipp)
-    else do 
-     return $ getMyIPHelper "xenbr0" ls 
+    else do
+     return $ getMyIPHelper "xenbr0" ls
     where
-     getMyIPHelper str ls = let ls' = Prelude.filter (\x -> (name x) == str) ls 
-                                ni = Prelude.head ls' in 
-                            ipv4 ni 
+     getMyIPHelper str ls = let ls' = Prelude.filter (\x -> (name x) == str) ls
+                                ni = Prelude.head ls' in
+                            ipv4 ni
 
 
 getMyIP' = do
-         ipv4 <- getMyIP 
+         ipv4 <- getMyIP
          return (Char8.pack (show ipv4))
 
 
 getMyDomId :: IO Int
-getMyDomId = getDomId 
+getMyDomId = getDomId
 
 
-whoAmI :: Role -> IO Entity 
-whoAmI r = do 
+whoAmI :: Role -> IO Entity
+whoAmI r = do
   i@(IPv4 myIP) <- getMyIP
   myID <- getMyDomId
   return $ Entity {
        entityName =show r --  "Attester the Magnificent"
-     , entityIp = Just (Char8.pack (show i))      
-     , entityId = Just myID 
-     , entityRole = r 
+     , entityIp = Just (Char8.pack (show i))
+     , entityId = Just myID
+     , entityRole = r
      , entityNote = Nothing
-     } 
+     }
 
-whoAmI' :: Role -> IO Entity 
-whoAmI' r = do 
+whoAmI' :: Role -> IO Entity
+whoAmI' r = do
   i@(IPv4 myIP) <- getMyIP
 --  myID <- getMyDomId
   return $ Entity {
        entityName =show r --  "Attester the Magnificent"
-     , entityIp = Just (Char8.pack (show i))      
-     , entityId = Nothing 
-     , entityRole = r 
+     , entityIp = Just (Char8.pack (show i))
+     , entityId = Nothing
+     , entityRole = r
      , entityNote = Nothing
-     } 
+     }

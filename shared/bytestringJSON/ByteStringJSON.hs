@@ -12,8 +12,21 @@ import Data.ByteString.Lazy(ByteString, empty, append, pack, toStrict, fromStric
 instance ToJSON B.ByteString where
 	toJSON = DA.String . encodeToText
 instance FromJSON B.ByteString where
-	parseJSON (DA.String str) = pure $ decodeFromText str	
-				 		         
+	parseJSON (DA.String str) = pure $ decodeFromText str
+
+-- JSON stuff!
+
+--Request Things first
+   --toJSON
+jsonEncode :: (ToJSON a) => a -> ByteString
+jsonEncode = DA.encode
+
+jsonEitherDecode :: (FromJSON a) => ByteString -> Either String a
+jsonEitherDecode = DA.eitherDecode
+
+jsonDecode :: (FromJSON a) => ByteString -> Maybe a
+jsonDecode= DA.decode
+
 encodeToText :: B.ByteString -> T.Text
 encodeToText = TE.decodeUtf8 . Base64.encode
 
@@ -22,13 +35,13 @@ decodeFromText = {-either fail return .-} Base64.decodeLenient . TE.encodeUtf8
 
 decodeFromTextL :: (Monad m) => T.Text -> m ByteString
 decodeFromTextL x = let bs = decodeFromText x in
-		       return (fromStrict bs)  
+		       return (fromStrict bs)
 
 decodeFromTextLStayStrict :: (Monad m) => T.Text -> m B.ByteString
 decodeFromTextLStayStrict x = let bs = decodeFromText x in
-		       return (bs)  
+		       return (bs)
 
 
 decodeFromTextL' :: T.Text -> ByteString
 decodeFromTextL' x = let bs = decodeFromText x in
-		       fromStrict bs  
+		       fromStrict bs

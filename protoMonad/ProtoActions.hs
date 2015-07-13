@@ -2,6 +2,7 @@
 module ProtoActions where
 
 import ArmoredTypes
+import CommTools(sendG', receiveG')
 import ProtoMonad
 import VChanUtil
 import TPM.Types
@@ -40,7 +41,8 @@ realDecrypt sessKey blob = let
 send :: EntityId -> Message -> Proto ()
 send toId ds = do
   chan <- getEntityChannel toId
-  liftIO $ send' chan ds
+  --liftIO $ send' chan ds
+  liftIO $ sendG' chan ds
   --liftIO $ putStrLn $ "Sent message! " ++ (show ds)
   return ()
 
@@ -56,7 +58,8 @@ receive :: EntityId -> Proto Message
 receive fromId = do
  -- liftIO $ putStrLn $ "In receive"
   chan <- getEntityChannel fromId
-  result <- liftIO $ receive' chan
+  --result <- liftIO $ receive' chan
+  result <- liftIO $ receiveG' chan
   return $ result
 
 receive' :: LibXenVChan -> IO Message

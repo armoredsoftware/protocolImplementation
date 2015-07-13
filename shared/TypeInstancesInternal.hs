@@ -351,7 +351,7 @@ instance FromJSON ArmoredData where
                           | HM.member "AAFailure" o = AAFailure <$> o .: "AAFailure"
 
 --Binary instance necessary for communication, encryption, and decryption(or a combination of these).
-{-
+
 instance Binary ArmoredData where
   put (ANonce n) = do put (0::Word8)
                       put n
@@ -434,7 +434,7 @@ instance Binary EntityInfo where
            ip <- get
            let vchan = undefined --vchan <- get  --IS THIS OK??
            return $ EntityInfo name ip vchan
--}
+
 instance (ToJSON a) => ToJSON (SignedData a) where
   toJSON (s) = object
     ["dat" .= toJSON (dat s)
@@ -479,4 +479,32 @@ instance FromJSON EvidencePiece where
 				| HM.member "M2" o = M2 <$> ((o .: "M2") >>= decodeFromTextL)
 	parseJSON (DA.String "OK") = pure OK
 
+instance Binary EvidencePiece where
+         put (M0 req) = do put (0::Word8);
+                             put req;
+         put(M1 quote) =  do put (1::Word8);
+                               put quote;
+         put(M2 res)= do put(2::Word8);
+                           put res;
 
+         get = do t<- get :: Get Word8
+                  case t of
+                    0 -> do req <- get
+                            return (M0 req)
+                    1 -> do quote <- get
+                            return (M1 quote)
+                    2 -> do res <- get
+                            return (M2 res)
+
+instance Binary EvidenceDescriptor where
+  put D0 = put (0::Word8)
+  put D1 = put (1::Word8)
+  put D2 = put (2::Word8)
+  put DONE = put (3::Word8)
+
+  get = do t<- get :: Get Word8
+           case t of
+               0 -> return D0
+               1 -> return D1
+               2 -> return D2
+               3 -> return DONE

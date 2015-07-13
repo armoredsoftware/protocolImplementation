@@ -120,7 +120,7 @@ caEntity_App d nonceA pcrSelect = do
   pId <- protoIs
 
   let request = case pId of
-        1 -> [AEvidenceDescriptor d, ANonce nonceA, ATPM_PCR_SELECTION pcrSelect]
+        1 -> [AAEvidenceDescriptor d, ANonce nonceA, ATPM_PCR_SELECTION pcrSelect]
         2 -> [ANonce nonceA, ATPM_PCR_SELECTION pcrSelect]
 
   send 1 request
