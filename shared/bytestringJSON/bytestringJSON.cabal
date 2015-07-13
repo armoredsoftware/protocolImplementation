@@ -1,0 +1,30 @@
+name:                bytestring-json
+version:             0.0.1
+synopsis:            simply provides a bytestring to/from instance for a lazy bytestring.
+-- description:
+license:             BSD3
+--license-file:        LICENSE
+author:              Paul Kline
+Maintainer:          Paul Kline
+-- copyright:
+category:            System
+build-type:          Simple
+extra-source-files:  README.md
+cabal-version:       >=1.10
+
+library
+  exposed-modules:    ByteStringJSON
+  -- other-modules:
+ -- other-extensions:    TypeSynonymInstances,
+   --                    FlexibleInstances,
+     --                  DeriveDataTypeable,
+       --                ExistentialQuantification
+  build-depends:      base,
+                      aeson,
+                      bytestring,
+                      text,
+                      base64-bytestring
+                      
+
+  hs-source-dirs:     
+  default-language:    Haskell2010

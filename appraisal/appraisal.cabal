@@ -11,7 +11,7 @@ Build-type:             Simple
 
 library
   exposed-modules:      Appraisal
-  hs-source-dirs:       ./, ../protoMonad, ../provisioning, ../shared
+  hs-source-dirs:       ./, ../protoMonad, ../provisioning
   build-depends:        base >= 4,
                         tpmEmulator,
                         VChanUtil,
@@ -20,11 +20,11 @@ library
                         binary,
                         transformers,
                         containers,
-                        random,
                         bytestring,
                         crypto-api,
                         mtl,
-                        cipher-aes
+                        cipher-aes,
+                        sharedarmor
                         
   --Main-is: AppraiserMain.hs
   ghc-options: -O
