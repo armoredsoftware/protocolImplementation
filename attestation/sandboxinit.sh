@@ -1,4 +1,5 @@
 #!/bin/bash
+cabal sandbox delete
 cabal sandbox init
 cabal sandbox add-source ../negotiationtools
 

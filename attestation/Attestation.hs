@@ -1,4 +1,4 @@
-module AttesterMain where --AttesterMain where
+module Attestation where --AttesterMain where
 
 import CAProtoMain (caEntity_Att)
 import ProtoMonad
