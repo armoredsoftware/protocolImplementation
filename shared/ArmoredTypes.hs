@@ -1,10 +1,10 @@
 {-# LANGUAGE TypeSynonymInstances, FlexibleInstances, OverlappingInstances, OverloadedStrings, RecordWildCards  #-}
 
-module Demo3Shared (module Demo3SharedNOVCHAN,
-		    module Demo3Vchan) where
+module ArmoredTypes (module TypeInstancesInternal,
+		    module TypesInternal) where
 
-import Demo3SharedNOVCHAN
-import Demo3Vchan
+import TypeInstancesInternal
+import TypesInternal
 
 
 import qualified Control.Monad.Trans.State as T
