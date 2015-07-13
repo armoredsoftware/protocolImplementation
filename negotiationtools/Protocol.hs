@@ -9,7 +9,7 @@ import Data.ByteString.Lazy (ByteString, pack, append, empty, cons, fromStrict)
 import TPM
 import qualified Network.Http.Client as HttpClient
 import qualified CommTools as CommTools
-import qualified Demo3Shared as Demo3
+--import qualified Demo3Shared as Demo3
 import VChanUtil
 import Control.Concurrent.MVar
 import Control.Concurrent.STM.TMVar
