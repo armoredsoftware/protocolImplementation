@@ -2,7 +2,7 @@
 
 module CAProtoMain where
 
-import ArmoeredTypes
+import ArmoredTypes
 import ProtoMonad
 import ProtoActions
 import Keys

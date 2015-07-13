@@ -14,7 +14,8 @@ cabal-version:       >=1.10
 
 library
   exposed-modules:    ArmoredTypes
-  -- other-modules:
+  other-modules:      TypesInternal,
+                      TypeInstancesInternal
  -- other-extensions:    TypeSynonymInstances,
    --                    FlexibleInstances,
      --                  DeriveDataTypeable,
