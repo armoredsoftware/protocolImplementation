@@ -2,7 +2,7 @@
 
 module CAProtoMain where
 
-import ProtoTypesA
+import ProtoTypes
 import ProtoMonad
 import ProtoActions
 import Keys
