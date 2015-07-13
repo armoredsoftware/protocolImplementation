@@ -107,6 +107,18 @@ sharedToAdam (WAEvidence e) = Ad.AEvidence e
 -}
 
 
+killChannel :: Channel -> IO ()
+killChannel chan = do
+  case channelInfo chan of
+    VChanInfo mxenchan -> do
+      case mxenchan of
+       Nothing -> return ()
+       Just c -> close c
+    x@_ -> do
+      case httpInfoMaybeConnection x of
+        Nothing -> return ()
+        Just c -> closeConnection c 
+
 data Shared   = --WRequest AD.Request
               -- | WResponse AD.Response
 	      {-|-} WEvidenceDescriptor EvidenceDescriptor
