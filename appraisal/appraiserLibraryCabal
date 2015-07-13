@@ -1,0 +1,43 @@
+name:                appraiser
+version:             1.0.0
+synopsis:            Haskell emulation of TPM (Trusted Platform Module) interface
+-- description:
+license:             BSD3
+license-file:        LICENSE
+author:              Wesley Peck
+Maintainer:          Adam Petz (ampetz@ittc.ku.edu)
+-- copyright:
+category:            System
+build-type:          Simple
+extra-source-files:  README.md
+cabal-version:       >=1.10
+
+library
+  exposed-modules:     AppraiserMain
+  -- other-modules:
+  other-extensions:    TypeSynonymInstances,
+                       FlexibleInstances,
+                       DeriveDataTypeable,
+                       ExistentialQuantification
+  build-depends:       base >= 4,
+                        mtl,
+                        transformers,
+                        cipher-aes,
+                        crypto-api,
+                        directory,
+                        containers,
+                        bytestring,
+                        binary,
+                        network < 2.6,
+                        random,
+                        --network-bytestring,
+                        HsOpenSSL,
+                        SHA,
+                        RSA,
+                        parsec >= 3,
+                        filepath,
+                        VChanUtil,
+                        tpmEmulator
+
+  hs-source-dirs:      ./, ../provisioning, ../protoMonad
+  default-language:    Haskell2010
