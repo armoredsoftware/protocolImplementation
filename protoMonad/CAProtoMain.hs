@@ -10,6 +10,7 @@ import Provisioning
 import TPM
 import TPMUtil
 import VChanUtil hiding (send, receive)
+import CommTools(killChannel)
 
 import System.IO
 import System.Random
@@ -107,6 +108,7 @@ caAtt_CA signedContents = do
 
   attChan <- getEntityChannel caEntityId
   --liftIO $ close attChan
+  liftIO $ killChannel attChan
   return (ekEncBlob, kEncBlob)
 
 caAtt_Mea :: EvidenceDescriptor -> Proto Evidence
