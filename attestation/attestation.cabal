@@ -21,9 +21,21 @@ library
                         RSA,
                         tpmEmulator,
                         VChanUtil,
+                        bytestring-json,
                         mtl,
                         SHA,
-                        crypto-api
-                        
+                        crypto-api,
+                        aeson,
+                        scotty,
+                        unordered-containers,
+                        http-streams,
+                        network-info,
+                        stm,
+                        io-streams,
+                        network,
+                        HTTP,
+                        cipher-aes
+
+
  -- Main-is: AttesterMain.hs
   ghc-options: -O
