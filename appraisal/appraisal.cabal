@@ -1,6 +1,6 @@
 Name:                   appraisal
 Version:                0.1
-Synopsis:               appraiser main executable
+Synopsis:               appraisal library
 License:                BSD3
 License-file:           LICENSE
 Author:                 Adam Petz
@@ -13,22 +13,20 @@ library
   exposed-modules:      Appraisal
   hs-source-dirs:       ./, ../protoMonad, ../provisioning
   build-depends:        base >= 4,
-                        mtl,
-                        transformers,
-                        cipher-aes,
-                        crypto-api,
-                        directory,
-                        containers,
-                        bytestring,
-                        binary,
-                        network,
-                        random,
                         tpmEmulator,
                         VChanUtil,
                         RSA,
-                        SHA
+                        SHA,
+                        binary,
+                        transformers,
+                        containers,
+                        random,
+                        bytestring,
+                        crypto-api,
+                        mtl,
+                        cipher-aes
                         
   --Main-is: AppraiserMain.hs
   ghc-options: -O
 
-  default-language:     Haskell2010
+--  default-language:     Haskell2010
