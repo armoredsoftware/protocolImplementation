@@ -11,7 +11,7 @@ Build-type:             Simple
 
 library
   exposed-modules:      Attestation
-  hs-source-dirs:       ./, ../protoMonad, ../provisioning
+  hs-source-dirs:       ./, ../protoMonad, ../provisioning, ../shared
   build-depends:        base,
                         bytestring,
                         containers,

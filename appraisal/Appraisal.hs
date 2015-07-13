@@ -2,7 +2,7 @@ module Appraisal where --AppMain where
 
 import CAProtoMain (caEntity_App)
 import ProtoMonad
-import ProtoTypesA
+import ArmoredTypes
 import ProtoActions
 import VChanUtil
 import TPM
