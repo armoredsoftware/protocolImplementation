@@ -16,8 +16,8 @@ import System.IO
 import Codec.Crypto.RSA
 import System.Random
 
-attCommInit :: [Channel] -> IO ProtoEnv
-attCommInit chans {-domidS-} = do
+attCommInit :: [Channel] -> Int -> IO ProtoEnv
+attCommInit chans protoId {-domidS-} = do
   ekPub <- takeInit --Taking ownership of TPM
   --exportEK exportEKFileName ekPub  -- <--This is for provisioning
   {-appChan <- server_init (domidS !! 0)
@@ -38,15 +38,15 @@ attCommInit chans {-domidS-} = do
       pubs = M.fromList [(1,appPub), (2, caPub)]
 
 
-  return $ ProtoEnv 0 myPri ents pubs 0 0 0 1
+  return $ ProtoEnv 0 myPri ents pubs 0 0 0 protoId
 
 
 --main = attmain' [1, 4]
 
-attmain' :: [Channel] -> IO String
-attmain' chans = do
+attmain' :: Int -> [Channel] -> IO String
+attmain' protoId chans = do
   putStrLn "Main of entity Attestation"
-  env <- attCommInit chans --[1, 4]--[appId, caId]
+  env <- attCommInit chans protoId --[1, 4]--[appId, caId]
   eitherResult <- runProto caEntity_Att env
   let str = case eitherResult of
              Left s -> "Error occured: " ++ s

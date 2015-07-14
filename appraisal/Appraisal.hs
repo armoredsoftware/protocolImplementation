@@ -21,8 +21,8 @@ import Data.Digest.Pure.SHA (bytestringDigest, sha1)
 import Data.Binary
 import Control.Applicative hiding (empty)
 
-appCommInit :: Channel -> IO ProtoEnv
-appCommInit attChan {-domid-} = do
+appCommInit :: Channel -> Int -> IO ProtoEnv
+appCommInit attChan protoId {-domid-} = do
   --attChan <- client_init domid
   let myInfo = EntityInfo "Appraiser" 22 attChan
       attInfo = EntityInfo "Attester" 22 attChan
@@ -33,22 +33,22 @@ appCommInit attChan {-domid-} = do
   let pubs = M.fromList [(1,attPub)]
 
 
-  return $ ProtoEnv 0 myPri ents pubs 0 0 0 1
+  return $ ProtoEnv 0 myPri ents pubs 0 0 0 protoId
 
 
 --main = appmain' 1
 
 appmain' :: Int -> Channel -> IO ()
-appmain' pId chan = do
+appmain' protoId chan = do
   putStrLn "Main of entity Appraiser"
-  env <- appCommInit chan {-3-}
+  env <- appCommInit chan protoId {-3-}
   let pcrSelect = mkTPMRequest [0..23]
       nonce = 34
   eitherResult <- runProto (caEntity_App D0 nonce pcrSelect) env
   str <- case eitherResult of
               Left s -> return $ "Error occured: " ++ s
               Right  resp@(ev, n, comp, cert@(SignedData aikPub aikSig), qSig) ->
-                evaluate pId ([D0, D1, D2], nonce, pcrSelect) (ev, n, comp, cert, qSig) -- "Response received:\n" ++ (show resp)
+                evaluate protoId ([D0, D1, D2], nonce, pcrSelect) (ev, n, comp, cert, qSig) -- "Response received:\n" ++ (show resp)
   putStrLn str
   return ()
 
