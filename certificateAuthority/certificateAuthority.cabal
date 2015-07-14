@@ -29,6 +29,7 @@ executable              CA
                         parsec >= 3,
                         filepath,
                         VChanUtil,
-                        tpmEmulator
+                        tpmEmulator,
+                        sharedarmor
   Main-is: CAMain.hs
   ghc-options: -O

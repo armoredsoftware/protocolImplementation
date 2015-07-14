@@ -2,7 +2,8 @@ module Main where --Main
 
 import CAProtoMain (caEntity_CA)
 import ProtoMonad
-import ProtoTypesA
+import ArmoredTypes
+--import ProtoTypesA
 import ProtoActions
 import VChanUtil
 import TPMUtil
@@ -18,7 +19,7 @@ import Control.Monad.IO.Class
 import Control.Monad
 import Control.Concurrent
 
-caCommInit :: LibXenVChan -> IO ProtoEnv
+{-caCommInit :: Channel -> IO ProtoEnv
 caCommInit attChan = do
   let myInfo = EntityInfo "CA" 22 attChan
       attInfo = EntityInfo "Attester" 22 attChan
@@ -27,23 +28,26 @@ caCommInit attChan = do
   myPri <- getCAPrivateKey
   (attPub, _) <- generateArmoredKeyPair -- Not used
   let pubs = M.fromList [(1,attPub)]
-  return $ ProtoEnv 0 myPri ents pubs 0 0 0 1
+  return $ ProtoEnv 0 myPri ents pubs 0 0 0 1 -}
 
-caProcess :: ProtoEnv -> LibXenVChan -> IO ()
-caProcess env attChan = do
+caProcess :: {-ProtoEnv -> -} LibXenVChan -> IO ()
+caProcess {-env-} attChan = do
  -- yield
-  eitherResult <- runProto (caEntity_CA attChan) env
+  {-eitherResult <- runProto (caEntity_CA attChan) env
   case eitherResult of
     Left s -> putStrLn $ "Error occured: " ++ s
     Right _ -> putStrLn $ "Completed successfully" -- ++ (show resp)
+   -}
+  caEntity_CA attChan
+  putStrLn "Completed successfully"
   close attChan
 
 main :: IO ()
 main = do
   putStrLn "Main of entity CA"
   attChan <- server_init 3
-  env <- caCommInit attChan
-  caProcess env attChan
+  --env <- caCommInit attChan
+  caProcess {-env-} attChan
 
   forever$ do
     main

@@ -140,23 +140,23 @@ caEntity_App d nonceA pcrSelect = do
            ASignature sig] <- receive 1
           return ([], nA, pComp, SignedData aikPub aikSig, sig)
 
-caEntity_CA :: LibXenVChan -> Proto ()
+caEntity_CA :: LibXenVChan -> IO ()
 caEntity_CA attChan = do
 
   [AEntityInfo eInfo,
    ASignedData (SignedData
                 (ATPM_IDENTITY_CONTENTS pubKey)
-                 sig)]  <- liftIO $ receive' attChan
+                 sig)]  <- receive' attChan
 
-  ekPubKey <- liftIO readEK
+  ekPubKey <- readEK
 
   let iPubKey = identityPubKey pubKey
       iDigest = tpm_digest $ encode iPubKey
       asymContents = contents iDigest
       blob = encode asymContents
-  encBlob <-  liftIO $ tpm_rsa_pubencrypt ekPubKey blob
+  encBlob <- tpm_rsa_pubencrypt ekPubKey blob
 
-  caPriKey <- liftIO getCAPrivateKey
+  caPriKey <- getCAPrivateKey
   let caCert = realSign caPriKey (encode iPubKey)
       certBytes = encode (SignedData iPubKey caCert)
 
@@ -164,7 +164,7 @@ caEntity_CA attChan = do
       encryptedCert = encryptCTR aes ctr strictCert
       enc = fromStrict encryptedCert
 
-  liftIO $ send' attChan [ACipherText encBlob, ACipherText enc]
+  send' attChan [ACipherText encBlob, ACipherText enc]
  where
    symKey =
      TPM_SYMMETRIC_KEY
