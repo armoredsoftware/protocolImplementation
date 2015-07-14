@@ -10,6 +10,7 @@ import Provisioning
 import TPM
 import TPMUtil
 import VChanUtil hiding (send, receive)
+import CommTools(killChannel)
 
 import System.IO
 import System.Random
@@ -36,7 +37,7 @@ caEntity_Att = do
   case pId of
     1 -> do
 
-      req@ [AEvidenceDescriptor dList,
+      req@ [AAEvidenceDescriptor dList,
             reqNonce@(ANonce nApp),
             ATPM_PCR_SELECTION pcrSelect] <- receive appraiserEntityId
 
@@ -106,11 +107,12 @@ caAtt_CA signedContents = do
   [ACipherText ekEncBlob, ACipherText kEncBlob] <- receive caEntityId
 
   attChan <- getEntityChannel caEntityId
-  liftIO $ close attChan
+  --liftIO $ close attChan
+  liftIO $ killChannel attChan
   return (ekEncBlob, kEncBlob)
 
 caAtt_Mea :: EvidenceDescriptor -> Proto Evidence
-caAtt_Mea eds = return [0,1,2]
+caAtt_Mea eds = return [M0 empty, M1 empty, M2 empty]
 
 caEntity_App :: EvidenceDescriptor -> Nonce -> TPM_PCR_SELECTION ->
                 Proto (Evidence, Nonce, TPM_PCR_COMPOSITE,
