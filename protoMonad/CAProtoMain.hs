@@ -97,18 +97,19 @@ caEntity_Att = do
 
 caAtt_CA :: AikContents -> Proto (CipherText, CipherText)
 caAtt_CA signedContents = do
+  attChan <- liftIO $ client_init 1
   let caEntityId :: EntityId
       caEntityId = 2
   myInfo <- getEntityInfo 0
   let val = SignedData
             (ATPM_IDENTITY_CONTENTS  (dat signedContents))
             (sig signedContents)
-  send caEntityId [AEntityInfo myInfo, ASignedData val]
-  [ACipherText ekEncBlob, ACipherText kEncBlob] <- receive caEntityId
+  liftIO $ send' attChan [AEntityInfo myInfo, ASignedData val]
+  [ACipherText ekEncBlob, ACipherText kEncBlob] <- liftIO $ receive' attChan
 
-  attChan <- getEntityChannel caEntityId
-  --liftIO $ close attChan
-  liftIO $ killChannel attChan
+  --attChan <- getEntityChannel caEntityId
+  liftIO $ close attChan
+  --liftIO $ killChannel attChan
   return (ekEncBlob, kEncBlob)
 
 caAtt_Mea :: EvidenceDescriptor -> Proto Evidence
