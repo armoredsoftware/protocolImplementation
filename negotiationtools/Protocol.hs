@@ -2,7 +2,7 @@
 module Protocol where
 
 import Data.Aeson (toJSON, parseJSON, ToJSON,FromJSON, object , (.=), (.:) )
-import Demo3Shared hiding (Result, AttState)
+import ArmoredTypes hiding (Result, AttState)
 import Control.Monad
 import Control.Monad.State.Strict
 import Data.ByteString.Lazy (ByteString, pack, append, empty, cons, fromStrict)
