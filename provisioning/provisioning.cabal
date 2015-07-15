@@ -26,7 +26,30 @@ executable              Provisioning
                         parsec >= 3,
                         filepath,
                         crypto-api,
+                        tpm-emulator,
                         VChanUtil,
-                        tpm-emulator
+                        bytestring-json
+
   Main-is: ProvisioningMain.hs
+  ghc-options: -O
+
+library
+  exposed-modules:      Provisioning
+  other-modules:
+  hs-source-dirs:       ./, ../protoMonad
+  build-depends:        base >= 4,
+                        tpm-emulator,
+                        RSA,
+                        SHA,
+                        binary,
+                        transformers,
+                        containers,
+                        bytestring,
+                        crypto-api,
+                        mtl,
+                        cipher-aes,
+                        sharedarmor,
+                        random,
+                        bytestring-json
+
   ghc-options: -O
