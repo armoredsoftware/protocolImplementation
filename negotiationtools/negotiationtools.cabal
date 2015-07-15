@@ -13,17 +13,16 @@ extra-source-files:  README.md
 cabal-version:       >=1.10
 
 library
-  exposed-modules:     CommTools,
-                       CommunicationNegotiator,
-                       Protocol,
-                       ProtoTypes
-  -- other-modules:
+  exposed-modules:     
+                       Protocol
+                       
+  -- other-modules:     
  -- other-extensions:    TypeSynonymInstances,
    --                    FlexibleInstances,
      --                  DeriveDataTypeable,
        --                ExistentialQuantification
   build-depends:      stm,
-                      tpmEmulator,
+                      tpm-emulator,
                       base,
                       time,
                       random,
@@ -37,8 +36,9 @@ library
                       HTTP,
                       network,
                       SHA,
-                      containers
+                      containers,
+                      sharedarmor
                       
 
-  hs-source-dirs:     ./, ../apprasier, ../attester, ../shared
+  hs-source-dirs:     ./
   default-language:    Haskell2010

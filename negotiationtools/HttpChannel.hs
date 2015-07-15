@@ -15,7 +15,7 @@ import Control.Applicative
 import Data.ByteString.Lazy hiding (putStrLn,length,map)
 import Control.Monad
 import Control.Monad.State.Strict
-import Demo3Shared as AD
+import ArmoredTypes as AD
 import System.IO.Error (tryIOError)
 import System.Timeout
 
