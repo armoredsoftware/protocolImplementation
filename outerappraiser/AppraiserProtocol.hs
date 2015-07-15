@@ -7,9 +7,9 @@ import qualified System.IO.Streams as Streams
 import qualified Data.ByteString as S
 
 import Protocol
-import ProtoTypes
 import Network.Http.Client
-import Demo3Shared hiding (Result)
+import ArmoredTypes
+import Data.Aeson
 import Control.Concurrent.STM.TMVar
 import CommunicationNegotiator
 import Control.Concurrent
@@ -17,7 +17,7 @@ import Control.Monad
 import Control.Monad.State.Strict
 import Web.Scotty hiding (get, put)
 import qualified Web.Scotty as Scotty
-import qualified Demo3Shared as AD
+import qualified ArmoredTypes as AD
 import qualified Data.Text.Lazy as LazyText
 import qualified Data.Text.Lazy.Encoding as LazyEncoding
 import CommTools (whoAmI)
@@ -57,7 +57,7 @@ awaitAppraisalReq s = do
 	     -- myprint' ("Data received on port: " ++ (show port)) 1
 	      liftIO $ putStrLn ("thingy received: " ++ (show a))
 	      --first converts the Text to UTF8, then then attempts to read a CARequest
-	      let jj = AD.jsonEitherDecode (LazyEncoding.encodeUtf8 a) :: Either String FormalRequest
+	      let jj = eitherDecode (LazyEncoding.encodeUtf8 a) :: Either String FormalRequest
 	      case jj of 
                 (Left err) -> text (LazyText.pack ("ERROR Improper Request: " ++ err))
                 (Right (FormalRequest target nreq)) -> do 

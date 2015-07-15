@@ -1,4 +1,4 @@
-name:                negotiationtools
+name:                outerappraiser
 version:             0.0.1
 synopsis:            This is a cat because it's all patches.
 -- description:
@@ -12,33 +12,23 @@ build-type:          Simple
 extra-source-files:  README.md
 cabal-version:       >=1.10
 
-library
-  exposed-modules:     CommTools,
-                       CommunicationNegotiator,
-                       Protocol,
-                       ProtoTypes
-  -- other-modules:
+executable outerAppraiser
  -- other-extensions:    TypeSynonymInstances,
    --                    FlexibleInstances,
      --                  DeriveDataTypeable,
        --                ExistentialQuantification
-  build-depends:      stm,
-                      tpmEmulator,
+  build-depends:      negotiation-tools,
                       base,
-                      time,
-                      random,
                       text,
                       scotty,
-                      bytestring,
-                      network-info,
-                      aeson,
-                      io-streams,
                       mtl,
-                      HTTP,
-                      network,
-                      SHA,
-                      containers
-                      
+                      sharedarmor,
+                      io-streams,
+                      http-streams,
+                      stm,
+                      bytestring,
+                      aeson
+                  
 
-  hs-source-dirs:     ./, ../apprasier, ../attester, ../shared
+  main-is:            OuterAppraiserMain.hs                   
   default-language:    Haskell2010

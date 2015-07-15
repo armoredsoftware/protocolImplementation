@@ -5,7 +5,7 @@ module CommunicationNegotiator where
 
 import Web.Scotty hiding (get, put)
 import qualified Web.Scotty as Scotty
-import qualified Demo3Shared as AD
+import qualified ArmoredTypes as AD
 import System.IO.Streams (InputStream, OutputStream, stdout)
 import qualified System.IO.Streams as Streams
 import qualified Data.ByteString as S
@@ -18,15 +18,16 @@ import qualified Network.Http.Client as HttpClient
 import Data.ByteString.Lazy (ByteString, pack, append, empty, cons, fromStrict, length)
 --import Control.Monad
 import Control.Monad.State.Strict
-import ProtoTypes
-import Demo3Shared
-import CommTools
+--import ProtoTypes
+import ArmoredTypes
+import CommTools hiding (killChannel)
 import Control.Monad.STM
 import System.Random
 import VChanUtil
 import Data.Time
 import Control.Concurrent
 import System.Timeout
+import Data.Aeson (eitherDecode, encode)
 
 import Data.Word (Word16)
 
@@ -336,7 +337,7 @@ negotiator = do
 	     -- myprint' ("Data received on port: " ++ (show port)) 1
 	      
 	      --first converts the Text to UTF8, then then attempts to read a CARequest
-	      let jj = AD.jsonEitherDecode (LazyEncoding.encodeUtf8 a) :: Either String Shared
+	      let jj = eitherDecode (LazyEncoding.encodeUtf8 a) :: Either String Shared
 	      case jj of
 	      	(Left err) -> text (LazyText.pack "ERROR: Improper request.")
 	      	(Right (WCommRequest (VChanRequest entity n1))) -> do
@@ -353,7 +354,7 @@ negotiator = do
 	      	  		  liftIO $ atomically $ putTMVar chanETMVar chanls
 	      	  		  json (VChanSuccess "I already have a channel with you.") --do nuthin'
 	      	  	Nothing      -> do -- interesting stuff
-      	  		case (entityId entity) of 
+      	  		  case (entityId entity) of 
       	  				    (Nothing)  -> do
       	  				    		  liftIO $ putStrLn "entityId entity gave back a Nothing."
       	  				    		  --return Nothing
@@ -430,7 +431,7 @@ httpExpectNonce (HttpInfo _ myport theirPort theirIP maybeConn msglsTMVar unitTM
   Scotty.scotty intPort $ do
     Scotty.post "/" $ do
       a <- (param "request") :: ActionM LazyText.Text    
-      let jj = AD.jsonEitherDecode (LazyEncoding.encodeUtf8 a) :: Either String Shared
+      let jj = eitherDecode (LazyEncoding.encodeUtf8 a) :: Either String Shared
       case jj of
 	(Left err)     -> text (LazyText.pack "ERROR: Improper request.")
 	(Right shared) -> do
@@ -468,7 +469,7 @@ httpServe (HttpInfo _ myport theirPort theirIP maybeConn msglsTMVar unitTMVar) =
 	     -- myprint' ("Data received on port: " ++ (show port)) 1
 	      
 	      --first converts the Text to UTF8, then then attempts to read a CARequest
-	      let jj = AD.jsonEitherDecode (LazyEncoding.encodeUtf8 a) :: Either String Shared
+	      let jj = eitherDecode (LazyEncoding.encodeUtf8 a) :: Either String Shared
 	      case jj of
 		(Left err)     -> text (LazyText.pack "ERROR: Improper request.")
 		(Right shared) -> do

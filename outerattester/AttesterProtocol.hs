@@ -7,9 +7,8 @@ import qualified System.IO.Streams as Streams
 import qualified Data.ByteString as S
 
 import Protocol
-import ProtoTypes
 import Network.Http.Client
-import Demo3Shared hiding (Result, AttState)
+import ArmoredTypes 
 import Control.Concurrent.STM.TMVar
 import Control.Monad
 import Control.Monad.State.Strict

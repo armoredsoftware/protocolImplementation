@@ -20,12 +20,12 @@ import CommunicationNegotiator
 import CommTools hiding (Result)
 import Control.Concurrent
 import Data.Tuple
-import ExampleArmoredConfig
+--import ExampleArmoredConfig
 import Data.Maybe
 import System.IO                 
 import System.Timeout
-import qualified Attestation as AttSubProto (attmain)
-import qualified Appraisal   as AppSubProto (appmain)  
+import qualified Attestation as AttSubProto (attmain')
+import qualified Appraisal   as AppSubProto (appmain')  
 	      
 runExecute :: Process -> Entity ->IO (Process, ArmoredState)
 runExecute proto executor = do
@@ -83,7 +83,7 @@ execute (CreateChannel achan ent1 proc) = do
                   killChannels
                   return $ Stuck str2
                 Just hChan -> do
-                  let str3 = "successfully created httpChannel"
+                  let str3 = "successfully created hmain'"
                   liftIO $ putStrLn $ str3
                   logf' str3
                   --http chan added to state in tryCreateHttpChannel                  
@@ -282,12 +282,12 @@ execute (HandleFinalChoice storeVar finalNReq  proc) = do
                execute proc 
              (RequestItem ProtocolItem (IntProperty i)) -> do
                let (who,f) = case (entityRole getExecutor) of 
-                              Appraiser -> ("Appraiser",AppSubProto.appmain )
-                              Attester  -> ("Attester",AttSubProto.attmain )
+                              Appraiser -> ("Appraiser",AppSubProto.appmain' )
+                              Attester  -> ("Attester",AttSubProto.attmain' )
                let str = "Negotiation complete. About to perform " ++ who ++ " sub protocol for: " ++ (show nreq)
                liftIO $ putStrLn str 
                logf' str
-               subResult <- liftIO $ f chan i
+               subResult <- liftIO $ f i chan
                addVariable storeVar (AString subResult)
                execute proc 
                         

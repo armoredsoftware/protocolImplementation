@@ -1,4 +1,4 @@
-name:                negotiationtools
+name:                negotiation-tools
 version:             0.0.1
 synopsis:            This is a cat because it's all patches.
 -- description:
@@ -14,7 +14,8 @@ cabal-version:       >=1.10
 
 library
   exposed-modules:     
-                       Protocol
+                       Protocol,
+                       CommunicationNegotiator
                        
   -- other-modules:     
  -- other-extensions:    TypeSynonymInstances,
@@ -37,7 +38,12 @@ library
                       network,
                       SHA,
                       containers,
-                      sharedarmor
+                      sharedarmor,
+                      VChanUtil,
+                      attestation,
+                      appraisal,
+                      http-streams
+                      
                       
 
   hs-source-dirs:     ./

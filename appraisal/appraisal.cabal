@@ -11,6 +11,7 @@ Build-type:             Simple
 
 library
   exposed-modules:      Appraisal
+  other-modules:        ProtoMonad, Provisioning
   hs-source-dirs:       ./, ../protoMonad, ../provisioning
   build-depends:        base >= 4,
                         tpm-emulator,

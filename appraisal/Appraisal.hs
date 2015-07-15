@@ -38,8 +38,8 @@ appCommInit attChan protoId {-domid-} = do
 
 --main = appmain' 1
 
-appmain' :: Int -> Channel -> IO ()
-appmain' protoId chan = do
+appmain' :: Int -> Channel -> IO String
+appmain' protoId chan = do 
   putStrLn "Main of entity Appraiser"
   env <- appCommInit chan protoId {-3-}
   let pcrSelect = mkTPMRequest [0..23]
@@ -50,7 +50,7 @@ appmain' protoId chan = do
               Right  resp@(ev, n, comp, cert@(SignedData aikPub aikSig), qSig) ->
                 evaluate protoId ([D0, D1, D2], nonce, pcrSelect) (ev, n, comp, cert, qSig) -- "Response received:\n" ++ (show resp)
   putStrLn str
-  return ()
+  return str
 
 
 evaluate :: Int -> ([EvidenceDescriptor], Nonce, TPM_PCR_SELECTION) ->

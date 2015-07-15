@@ -1,0 +1,31 @@
+name:                outer-attester
+version:             0.0.1
+synopsis:            This is a cat because it's all patches.
+-- description:
+license:             BSD3
+license-file:        LICENSE
+author:              Paul Kline
+Maintainer:          Paul Kline
+-- copyright:
+category:            System
+build-type:          Simple
+extra-source-files:  README.md
+cabal-version:       >=1.10
+
+executable outerAttester
+
+  build-depends:      negotiation-tools,
+                      base,
+                      text,
+                      scotty,
+                      mtl,
+                      sharedarmor,
+                      io-streams,
+                      http-streams,
+                      stm,
+                      bytestring,
+                      aeson
+                  
+
+  main-is:            OuterAttesterMain.hs                   
+  default-language:    Haskell2010
