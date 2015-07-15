@@ -97,7 +97,7 @@ caEntity_Att = do
 
 caAtt_CA :: AikContents -> Proto (CipherText, CipherText)
 caAtt_CA signedContents = do
-  attChan <- liftIO $ client_init 1
+  attChan <- liftIO $ client_init 4
   let caEntityId :: EntityId
       caEntityId = 2
   myInfo <- getEntityInfo 0
