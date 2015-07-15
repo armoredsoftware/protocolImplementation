@@ -31,7 +31,7 @@ library
                       random,
                       RSA,
                       binary,
-                      tpmEmulator,
+                      tpm-emulator,
                       VChanUtil,
                       http-streams,
                       io-streams,

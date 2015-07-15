@@ -24,8 +24,8 @@ import ExampleArmoredConfig
 import Data.Maybe
 import System.IO                 
 import System.Timeout
-import qualified AttesterMain as AttSubProto (attmain)
-import qualified AppraiserMain as AppSubProto (appmain)  
+import qualified Attestation as AttSubProto (attmain)
+import qualified Appraisal   as AppSubProto (appmain)  
 	      
 runExecute :: Process -> Entity ->IO (Process, ArmoredState)
 runExecute proto executor = do

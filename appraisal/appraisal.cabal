@@ -13,7 +13,7 @@ library
   exposed-modules:      Appraisal
   hs-source-dirs:       ./, ../protoMonad, ../provisioning
   build-depends:        base >= 4,
-                        tpmEmulator,
+                        tpm-emulator,
                         VChanUtil,
                         RSA,
                         SHA,
