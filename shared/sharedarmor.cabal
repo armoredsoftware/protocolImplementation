@@ -38,6 +38,7 @@ library
                       network,
                       HTTP,
                       network-info,
+                      network-uri,
                       scotty,
                       stm
 

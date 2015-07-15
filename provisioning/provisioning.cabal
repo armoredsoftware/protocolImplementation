@@ -27,6 +27,6 @@ executable              Provisioning
                         filepath,
                         crypto-api,
                         VChanUtil,
-                        tpmEmulator
+                        tpm-emulator
   Main-is: ProvisioningMain.hs
   ghc-options: -O

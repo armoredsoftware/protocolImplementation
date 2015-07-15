@@ -13,8 +13,7 @@ extra-source-files:  README.md
 cabal-version:       >=1.10
 
 library
-  exposed-modules:     CommTools,
-                       CommunicationNegotiator,
+  exposed-modules:     CommunicationNegotiator,
                        Protocol,
                        ProtoTypes
   -- other-modules:
