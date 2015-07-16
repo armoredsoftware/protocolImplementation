@@ -341,7 +341,7 @@ negotiator = do
 	      --first converts the Text to UTF8, then then attempts to read a CARequest
 	      let jj = eitherDecode (LazyEncoding.encodeUtf8 a) :: Either String Shared
 	      liftIO $ putStrLn $ "Negotiator received: " ++ (show jj)
-	      liftIO $ logf "Negotiator received: " ++ (show jj)
+	      liftIO $ logf $ "Negotiator received: " ++ (show jj)
 	      case jj of
 	      	(Left err) -> text (LazyText.pack "ERROR: Improper request.")
 	      	(Right (WCommRequest (VChanRequest entity n1))) -> do
