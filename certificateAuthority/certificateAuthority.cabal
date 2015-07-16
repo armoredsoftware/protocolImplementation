@@ -20,7 +20,7 @@ executable              CA
                         containers,
                         bytestring,
                         binary,
-                        network < 2.6,
+                        network,
                         random,
                         --network-bytestring,
                         HsOpenSSL,
