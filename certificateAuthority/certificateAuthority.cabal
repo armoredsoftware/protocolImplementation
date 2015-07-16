@@ -33,4 +33,4 @@ executable              CA
                         sharedarmor,
                         protoMonad
   Main-is: CAMain.hs
-  ghc-options: -O
+  ghc-options: -O -threaded

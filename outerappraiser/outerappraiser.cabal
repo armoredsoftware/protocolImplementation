@@ -28,3 +28,4 @@ executable outerAppraiser
                   
   main-is:            OuterAppraiserMain.hs                   
   default-language:    Haskell2010
+  ghc-options:        -threaded
