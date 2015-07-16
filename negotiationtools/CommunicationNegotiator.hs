@@ -193,7 +193,9 @@ tryCreateHttpChannel ent chanName = do
       let httpChanInfo = HttpInfo Nothing myPort Nothing entIP Nothing armoredlsTMVar unitTMVar
       expectedNonceMVar <- liftIO $ newEmptyMVar
       
-      threadID <- liftIO $ forkIO $  httpExpectNonce httpChanInfo expectedNonceMVar                          
+      threadID <- liftIO $ forkIO $  httpExpectNonce httpChanInfo expectedNonceMVar
+      liftIO $ putStrLn $ "about to send: " ++ (show portRequest) ++ " on " ++ (show negotiationport) ++ " to " ++ (show entIP)
+      
       connWithNegotiation <-liftIO $ sendHttp (WCommRequest portRequest) entIP negotiationport
       curTime <- liftIO $ getCurrentTime
       liftIO $ putStrLn $ "Current time: " ++ (show curTime)
