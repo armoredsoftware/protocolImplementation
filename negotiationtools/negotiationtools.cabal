@@ -40,5 +40,5 @@ library
                       
                       
 
-  hs-source-dirs:     ./
+  ghc-options: -threaded
   default-language:    Haskell2010
