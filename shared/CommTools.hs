@@ -375,6 +375,7 @@ receiveShared chan = do
 			return shared
 sendHttp :: Shared -> Hostname -> Port ->IO Connection
 sendHttp shared iip pport = do
+			    putStrLn "doing sendHttp. specifically about to openconnection"
 			    c <- openConnection iip pport
 			    putStrLn "Just opened a connection to send on http"
 			    sendHttp' shared c
