@@ -10,9 +10,9 @@ Cabal-Version:          >= 1.2
 Build-type:             Simple
 
 library
-  exposed-modules:      Keys, CAProtoMain, ProtoActions, ProtoMonad, TPMUtil
-  other-modules:
+  exposed-modules:      Keys, CAProtoMain, ProtoActions, ProtoMonad, TPMUtil, Provisioning
   hs-source-dirs:       ./, ../provisioning
+  other-modules:
   build-depends:        base >= 4,
                         tpm-emulator,
                         VChanUtil,
@@ -29,7 +29,6 @@ library
                         random
 
 
-  --Main-is: AppraiserMain.hs
   ghc-options: -O
 
 --  default-language:     Haskell2010

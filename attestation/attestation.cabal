@@ -11,8 +11,6 @@ Build-type:             Simple
 
 library
   exposed-modules:      Attestation
-  other-modules:        ProtoMonad, Provisioning 
-  hs-source-dirs:       ./, ../protoMonad, ../provisioning
   build-depends:        base,
                         bytestring,
                         containers,
@@ -37,7 +35,8 @@ library
                         network,
                         HTTP,
                         cipher-aes,
-                        sharedarmor
+                        sharedarmor,
+                        protoMonad
 
 
  -- Main-is: AttesterMain.hs

@@ -10,7 +10,7 @@ Cabal-Version:          >= 1.2
 Build-type:             Simple
 
 executable              CA
-  hs-source-dirs:       ./, ../protoMonad, ../provisioning
+  hs-source-dirs:       ./, ../provisioning
   build-depends:        base >= 4,
                         mtl,
                         transformers,
@@ -29,7 +29,8 @@ executable              CA
                         parsec >= 3,
                         filepath,
                         VChanUtil,
-                        tpmEmulator,
-                        sharedarmor
+                        tpm-emulator,
+                        sharedarmor,
+                        protoMonad
   Main-is: CAMain.hs
   ghc-options: -O

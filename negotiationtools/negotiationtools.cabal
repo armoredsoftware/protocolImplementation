@@ -13,15 +13,9 @@ extra-source-files:  README.md
 cabal-version:       >=1.10
 
 library
-  exposed-modules:     
-                       Protocol,
+  exposed-modules:     Protocol,
                        CommunicationNegotiator
                        
-  -- other-modules:     
- -- other-extensions:    TypeSynonymInstances,
-   --                    FlexibleInstances,
-     --                  DeriveDataTypeable,
-       --                ExistentialQuantification
   build-depends:      stm,
                       tpm-emulator,
                       base,

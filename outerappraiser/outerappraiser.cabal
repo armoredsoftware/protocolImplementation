@@ -13,10 +13,7 @@ extra-source-files:  README.md
 cabal-version:       >=1.10
 
 executable outerAppraiser
- -- other-extensions:    TypeSynonymInstances,
-   --                    FlexibleInstances,
-     --                  DeriveDataTypeable,
-       --                ExistentialQuantification
+
   build-depends:      negotiation-tools,
                       base,
                       text,
@@ -29,6 +26,5 @@ executable outerAppraiser
                       bytestring,
                       aeson
                   
-
   main-is:            OuterAppraiserMain.hs                   
   default-language:    Haskell2010
