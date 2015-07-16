@@ -194,7 +194,7 @@ tryCreateHttpChannel ent chanName = do
       expectedNonceMVar <- liftIO $ newEmptyMVar
       
       threadID <- liftIO $ forkIO $  httpExpectNonce httpChanInfo expectedNonceMVar
-      liftIO $ putStrLn $ "about to send: " ++ (show portRequest) ++ " on " ++ (show negotiationport) ++ " to " ++ (show entIP)
+      liftIO $ putStrLn $ "about to send portRequest"  ++ " on " ++ (show negotiationport) ++ " to " ++ (show entIP)
       
       connWithNegotiation <-liftIO $ sendHttp (WCommRequest portRequest) entIP negotiationport
       curTime <- liftIO $ getCurrentTime
