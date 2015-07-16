@@ -376,6 +376,7 @@ receiveShared chan = do
 sendHttp :: Shared -> Hostname -> Port ->IO Connection
 sendHttp shared iip pport = do
 			    c <- openConnection iip pport
+			    putStrLn "Just opened a connection to send on http"
 			    sendHttp' shared c
 			    return c
 
@@ -392,6 +393,7 @@ sendHttp' shared c = do
 			    let x = encodedFormBody nvs
 			    --print "Made it here yaaaaaaaaaaaay"
 			    sendRequest c q (x)
+			    putStrLn "Just performed sendRequeset in sendHttp' "
 			    return ()
 
 receiveHttp :: Connection -> IO (Either String Shared)
