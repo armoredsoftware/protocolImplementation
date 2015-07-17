@@ -28,6 +28,6 @@ library
                         protoMonad
                         
   --Main-is: AppraiserMain.hs
-  ghc-options: -O
+  ghc-options: -O  -threaded
 
 --  default-language:     Haskell2010
