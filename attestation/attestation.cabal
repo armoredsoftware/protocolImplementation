@@ -40,4 +40,4 @@ library
 
 
  -- Main-is: AttesterMain.hs
-  ghc-options: -O
+  ghc-options: -O -threaded
