@@ -164,8 +164,8 @@ instance Show Shared where
     show (WNonce n)      = "WNonce: " ++ (show n)
     show (WNRequest nreq) = "WNRequest: " ++ (show nreq)
     show (WNResponse nres) = "WNResponse: " ++ (show nres)
-
-    show (WCommRequest commreq) = "WCommRequest " ++ (show commreq)
+    show _ = "Poop"
+    --show (WCommRequest commreq) = "WCommRequest " ++ (show commreq)
 --  show (WPort p) = "WPort: " ++ (show p)
 --  show (WPortRequest pr) = "WPortRequest " ++ (show pr)
 
