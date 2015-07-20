@@ -94,7 +94,7 @@ caEntity_Att = do
       send appraiserEntityId response
       return ()
 
-    _ -> liftIO $ putStrLn "Protocol id not yet implemented!"
+    _ -> error "Protocol id not yet implemented!"
 
 
 caAtt_CA :: AikContents -> Proto (CipherText, CipherText)
@@ -128,7 +128,8 @@ caEntity_App d nonceA pcrSelect = do
         1 -> [AAEvidenceDescriptor d, ANonce nonceA, ATPM_PCR_SELECTION pcrSelect]
         2 -> [ANonce nonceA, ATPM_PCR_SELECTION pcrSelect]
 
-        _ -> liftIO $ putStrLn "Protocol id not yet implemented!"
+        _ -> error "Protocol id not yet implemented!"
+             --return []
 
   send 1 request
 
@@ -145,7 +146,7 @@ caEntity_App d nonceA pcrSelect = do
            ASignature sig] <- receive 1
           return ([], nA, pComp, SignedData aikPub aikSig, sig)
 
-        _ -> liftIO $ putStrLn "Protocol id not yet implemented!"
+        _ -> error "Protocol id not yet implemented!"
 
 caEntity_CA :: LibXenVChan -> IO ()
 caEntity_CA attChan = do
