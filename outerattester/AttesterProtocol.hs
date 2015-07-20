@@ -31,6 +31,7 @@ attest = do
 	    	runStateT negotiator s0
 	    	return ()
 	    	)
+           -- runStateT negotiator s0
 	    --threadDelay 6000000
 	    --runExecute' myProto s0
 	    newChannelTrigger emptychans []

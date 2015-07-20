@@ -24,7 +24,7 @@ import Data.Word
 import Control.Concurrent.STM.TMVar
 import Control.Monad.STM
 import TPM.Types (TPM_PCR_SELECTION, TPM_PCR_COMPOSITE, TPM_IDENTITY_CONTENTS, TPM_PUBKEY)
---import qualified ProtoTypes as Ad
+import qualified ArmoredTypes as Ad
 import Data.Bits (shiftR)
 import Network.Info
 
@@ -34,6 +34,7 @@ import qualified Data.ByteString.Char8 as Char8
 
 import Data.Word (Word16)
 
+import ByteStringJSON (encodeToText)
 --foreign export converseWithScottyCA :: CARequest -> IO (Either String CAResponse)
 
 --import qualified System.IO.Streams.Internal as StreamsI
@@ -82,16 +83,15 @@ sharedToArmored (WEvidenceDescriptor evdes) = AEvidenceDescriptor evdes
 sharedToArmored (WEvidencePiece evpiece)    = AEvidencePiece evpiece
 --sharedToArmored (WCARequest careq)          = ACARequest careq
 --sharedToArmored (WCAResponse caresp)	    = ACAResponse caresp
---sharedToArmored (WNRequest nreq)            = ANRequestV nreq
---sharedToArmored (WNResponse nres)           = ANResponse nres
+sharedToArmored (WNRequest nreq)            = ANRequestV nreq
+sharedToArmored (WNResponse nres)           = ANResponse nres
 sharedToArmored (WAdamDataList adls)        = ArmoredAdamList adls
 sharedToArmored x@_			    = AFailure ("attempted to convert to non-supported armored type: " ++ (show x))
 
 sharedToAdam :: Shared -> [ArmoredData]
---sharedToAdam (WAdamData d) = [d]
+sharedToAdam (WAdamData d) = [d]
 sharedToAdam (WAdamDataList ls) = ls
 sharedToAdam x@_           = [AAFailure ("attempted to convert to non-supported ArmoredData type in method sharedToAdam: " ++ (show x))]
-
 {-
 sharedToAdam (WANonce n) = Ad.ANonce n
 sharedToAdam (WAEntityInfo e) = Ad.AEntityInfo e
@@ -120,8 +120,8 @@ killChannel chan = do
         Just c -> closeConnection c 
 
 data Shared   = --WRequest AD.Request
-              -- | WResponse AD.Response
-	      {-|-} WEvidenceDescriptor EvidenceDescriptor
+             -- | WResponse AD.Response
+	     {- |-} WEvidenceDescriptor EvidenceDescriptor
 	      | WEvidencePiece EvidencePiece
 --	      | WCARequest CARequest
 --	      | WCAResponse CAResponse
@@ -135,9 +135,8 @@ data Shared   = --WRequest AD.Request
               | WNRequest NRequest
               | WNResponse NResponse
 ------------------------------------ADAM DATA
-            --  | WAdamData Ad.ArmoredData
+              | WAdamData Ad.ArmoredData
               | WAdamDataList [ArmoredData]
-{-
               | WANonce Ad.Nonce
               | WAEntityInfo Ad.EntityInfo
               | WACipherText Ad.CipherText
@@ -149,10 +148,10 @@ data Shared   = --WRequest AD.Request
               | WASignature Ad.Signature
               | WAEvidenceDescriptor Ad.EvidenceDescriptor
               | WAEvidence Ad.Evidence
--}
+
 instance Show Shared where
---    show (WRequest app) = "Appraisal: " ++ show app
---    show (WResponse att) = "Attestation: " ++ show att
+   -- show (WRequest app) = "Appraisal: " ++ show app
+   -- show (WResponse att) = "Attestation: " ++ show att
     show (WEvidenceDescriptor evdes) = "EvidenceDescriptor: " ++ (show evdes)
     show (WEvidencePiece evPiece) = "EvidencePiece: " ++ (show evPiece)
     show (Result True) = "Appraisal succeeded."
@@ -164,14 +163,14 @@ instance Show Shared where
     show (WNonce n)      = "WNonce: " ++ (show n)
     show (WNRequest nreq) = "WNRequest: " ++ (show nreq)
     show (WNResponse nres) = "WNResponse: " ++ (show nres)
+    show (WCommRequest commreq) = "WCommRequest: "  ++ "NO SHOW INSTANCE IMPLEMENTED!!!!" -- (show commreq)
+    --show (WPort p) = "WPort: " ++ (show p)
+   -- show (WPortRequest pr) = "WPortRequest " ++ (show pr)
     show _ = "Poop"
-    --show (WCommRequest commreq) = "WCommRequest " ++ (show commreq)
---  show (WPort p) = "WPort: " ++ (show p)
---  show (WPortRequest pr) = "WPortRequest " ++ (show pr)
-
+    
 instance ToJSON Shared where
---	toJSON (WRequest req) = object [ "WRequest" .= toJSON req]
---	toJSON (WResponse resp) = object [ "WResponse" .= toJSON resp ]
+ --	toJSON (WRequest req) = object [ "WRequest" .= toJSON req]
+ --	toJSON (WResponse resp) = object [ "WResponse" .= toJSON resp ]
 	toJSON (Result bool) = object [ "Result" .= toJSON bool]
 	toJSON (WEvidenceDescriptor evdes) = object [ "WEvidenceDescriptor" .= toJSON evdes ]
 	toJSON (WEvidencePiece evPiece) = object ["WEvidencePiece" .= toJSON evPiece]
@@ -186,9 +185,9 @@ instance ToJSON Shared where
         toJSON (WNRequest nreq)       = object ["WNRequest" .= toJSON nreq]
         toJSON (WNResponse nres)      = object ["WNResponse" .= toJSON nres]
         -------------------------------adam stuff
-        --toJSON (WAdamData ad)         = object [ "WAdamData" .= toJSON ad]
+        toJSON (WAdamData ad)         = object [ "WAdamData" .= toJSON ad]
         toJSON (WAdamDataList ls)     = object [ "WAdamDataList" .= toJSON ls]
-{-
+
         toJSON (WANonce n)            = object ["WANonce" .= toJSON n]
        -- toJSON (WAEntityInfo e)       = object ["WAEntityInfo" .= toJSON e]
         toJSON (WACipherText c)       = object ["WACipherText" .= encodeToText (toStrict c)]
@@ -199,7 +198,7 @@ instance ToJSON Shared where
         toJSON (WASignature s)          = object ["WASignature" .=encodeToText (toStrict s)]
         toJSON (WAEvidenceDescriptor e) = object ["WAEvidenceDescriptor" .= toJSON e]
         toJSON (WAEvidence e)           = object ["WAEvidence" .= toJSON e]
--}
+
 instance FromJSON Shared where
 	parseJSON (A.Object o)  -- | HM.member "WRequest" o = WRequest <$> o .: "WRequest"
 				-- | HM.member "WResponse" o = WResponse <$> o .: "WResponse"

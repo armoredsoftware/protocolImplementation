@@ -134,8 +134,8 @@ data Armored = Var String
 	     | AEncrypted ByteString
 	     | AEntity Entity
 	     | AChannel String
-	    -- | ATPM_PCR_SELECTION TPM_PCR_SELECTION
-	   --  | ATPM_NONCE TPM_NONCE
+	     ---- | ATPM_PCR_SELECTION TPM_PCR_SELECTION
+	     | ATPM_NONCE TPM_NONCE
 	     | ArmoredPCRSel [Int]
 	     | ArmoredCreateNonce
 	     | ArmoredCreateDesiredEvidence [Int]

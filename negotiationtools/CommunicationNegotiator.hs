@@ -19,7 +19,7 @@ import Data.ByteString.Lazy (ByteString, pack, append, empty, cons, fromStrict, 
 --import Control.Monad
 import Control.Monad.State.Strict
 --import ProtoTypes
-import ArmoredTypes
+import ArmoredTypes hiding (Value)
 import CommTools hiding (killChannel)
 import Control.Monad.STM
 import System.Random
@@ -27,7 +27,7 @@ import VChanUtil
 import Data.Time
 import Control.Concurrent
 import System.Timeout
-import Data.Aeson (eitherDecode, encode)
+import Data.Aeson hiding (json)
 
 import Data.Word (Word16)
 
@@ -322,6 +322,7 @@ tryCreateVChannel me ent = do
 			   		  --mSendChan <- maybe_client_init id	        
 negotiator :: ArmoredStateTMonad ()
 negotiator = do
+    liftIO $ putStrLn "negotiator called"
     s <- get
     let chanETMVar =  getChannelEntriesTMVar s
     let me = getExecutor s
@@ -331,15 +332,25 @@ negotiator = do
 	    				 	--(Note: unqualified get is ambiguous).
 
 	    Scotty.post "/" $ do
+              liftIO $ putStrLn "RECEIVED POST" 
 	      --reads in "potential" request (parsing it could fail). 
 	      --Note: no en/de-crypting is yet taking place.
-	      a <- (param "request") :: ActionM LazyText.Text  
+	      a <- (param "request") :: ActionM LazyText.Text
+              liftIO $ putStrLn "past reading a"
 	     -- myprint' ("Received (Text):\n" ++ (show a)) 2 --debug show of text.
 	     -- myprint' ("Received (UTF8):\n" ++ (show (LazyEncoding.encodeUtf8 a))) 2 --debug printout.
 	     -- myprint' ("Data received on port: " ++ (show port)) 1
 	      
 	      --first converts the Text to UTF8, then then attempts to read a CARequest
-	      let jj = eitherDecode (LazyEncoding.encodeUtf8 a) :: Either String Shared
+              let a' = LazyEncoding.encodeUtf8 a
+              liftIO $ putStrLn (show a')
+              let jj' = Data.Aeson.eitherDecode a' {-(LazyEncoding.encodeUtf8 a)-} :: Either String Value
+              liftIO $ putStrLn $ "\n\n" ++ (show jj') ++ "\n\n"
+              
+	      let jj = eitherDecode a' {-(LazyEncoding.encodeUtf8 a)-} :: Either String Shared
+              case jj of
+                 Left _ -> liftIO $ putStrLn "Left~~~~~~~~~~~~~~~"
+                 Right _ -> liftIO $ putStrLn "Right ~~~~~~~~~~~~~~~~~~~~"
 	      liftIO $ putStrLn $ "Negotiator received: " ++ (show jj)
 	      liftIO $ logf $ "Negotiator received: " ++ (show jj)
 	      case jj of
