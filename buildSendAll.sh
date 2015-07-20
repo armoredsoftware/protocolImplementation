@@ -1,16 +1,17 @@
 #!/bin/bash
 
-cd appraisal
-cabal build Appraiser
-cd ../attestation
-cabal build Attester
+#cd provisioning
+#cabal build ProvisioningMain
+#cd ../outerappraiser
+cd outerappraiser
+cabal build outerAppraiser
+cd ../outerattester
+cabal build outerAttester
 cd ../certificateAuthority
 cabal build CA
-cd ../provisioning
-cabal build Provisioning
 cd ..
 
-scp appraisal/dist/build/Appraiser/Appraiser root@10.100.0.234: ;  #Appraiser
-scp attestation/dist/build/Attester/Attester root@10.100.0.222: ; #Attester
-scp certificateAuthority/dist/build/CA/CA root@10.100.0.221: ; #PrivacyCA
-scp provisioning/dist/build/Provisioning/Provisioning root@10.100.0.221: ; #Provisioning
+#scp provisioning/dist/build/Provisioning/Provisioning root@10.100.0.221: ; #Provisioning
+scp outerappraiser/dist/build/outerAppraiser/outerAppraiser root@10.100.0.234: ; # Appraiser
+scp outerattester/dist/build/outerAttester/outerAttester root@10.100.0.222: ; # Appraiser
+scp certificateAuthority/dist/build/CA/CA root@10.100.0.221: ; #

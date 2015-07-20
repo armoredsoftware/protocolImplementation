@@ -31,8 +31,8 @@ caEntity_Att = do
   let appraiserEntityId :: EntityId
       appraiserEntityId = 1
   pId <- protoIs
-  --liftIO $ pcrReset
-  --liftIO $ pcrModify "a"
+  liftIO $ pcrReset
+  liftIO $ pcrModify "a"
 
   case pId of
     1 -> do
