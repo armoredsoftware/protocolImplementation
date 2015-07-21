@@ -20,6 +20,7 @@ import ArmoredTypes hiding (Result)
 --import ProtoTypes hiding (Result)
 --import qualified ProtoTypes as ProtoTypes
 import System.IO
+import System.Environment
 import Data.Word
 import Control.Concurrent.STM.TMVar
 import Control.Monad.STM
@@ -40,6 +41,25 @@ import ByteStringJSON (encodeToText)
 --import qualified System.IO.Streams.Internal as StreamsI
 type ID = String
 
+getVmDomIds :: IO [Int]
+getVmDomIds = do
+  stringArgs <- getArgs
+  return $ Prelude.map read stringArgs
+
+getAppraiserDomId :: IO Int
+getAppraiserDomId = do
+  ids <- getVmDomIds
+  return $ ids !! 0
+
+getAttesterDomId :: IO Int
+getAttesterDomId = do
+  ids <- getVmDomIds
+  return $ ids !! 1
+
+getCaDomId :: IO Int
+getCaDomId = do
+  ids <- getVmDomIds
+  return $ ids !! 2
 
 ip="10.100.0.6" -- "192.168.122.1"
 
@@ -117,7 +137,7 @@ killChannel chan = do
     x@_ -> do
       case httpInfoMaybeConnection x of
         Nothing -> return ()
-        Just c -> closeConnection c 
+        Just c -> closeConnection c
 
 data Shared   = --WRequest AD.Request
              -- | WResponse AD.Response
@@ -167,7 +187,7 @@ instance Show Shared where
     --show (WPort p) = "WPort: " ++ (show p)
    -- show (WPortRequest pr) = "WPortRequest " ++ (show pr)
     show _ = "Poop"
-    
+
 instance ToJSON Shared where
  --	toJSON (WRequest req) = object [ "WRequest" .= toJSON req]
  --	toJSON (WResponse resp) = object [ "WResponse" .= toJSON resp ]

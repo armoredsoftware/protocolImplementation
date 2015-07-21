@@ -10,7 +10,7 @@ import Provisioning
 import TPM
 import TPMUtil
 import VChanUtil hiding (send, receive)
-import CommTools(killChannel)
+import CommTools(killChannel, getCaDomId)
 
 import System.IO
 import System.Random
@@ -99,7 +99,8 @@ caEntity_Att = do
 
 caAtt_CA :: AikContents -> Proto (CipherText, CipherText)
 caAtt_CA signedContents = do
-  attChan <- liftIO $ client_init 4
+  caDomId <- liftIO $ getCaDomId
+  attChan <- liftIO $ client_init caDomId {-4-}
   let caEntityId :: EntityId
       caEntityId = 2
   myInfo <- getEntityInfo 0

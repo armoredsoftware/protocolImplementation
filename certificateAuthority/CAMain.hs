@@ -8,6 +8,7 @@ import ProtoActions
 import VChanUtil
 import TPMUtil
 import Keys
+import CommTools(getAttesterDomId)
 
 import Prelude
 import Data.ByteString.Lazy hiding (putStrLn, head, tail, map)
@@ -45,7 +46,8 @@ caProcess {-env-} attChan = do
 main :: IO ()
 main = do
   putStrLn "Main of entity CA"
-  attChan <- server_init 3
+  attDomId <- getAttesterDomId
+  attChan <- server_init attDomId {-3-}
   --env <- caCommInit attChan
   caProcess {-env-} attChan
 
