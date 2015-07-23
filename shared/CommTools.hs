@@ -1,6 +1,6 @@
 {-# LANGUAGE TypeSynonymInstances, FlexibleInstances, ConstraintKinds, OverlappingInstances, OverloadedStrings, RecordWildCards, ExistentialQuantification #-}
 module CommTools where
-import Data.ByteString.Lazy hiding (putStrLn)
+import Data.ByteString.Lazy hiding (putStrLn, init, tail)
 import Data.Monoid (mconcat)
 import Data.Maybe
 import Network.Http.Client
@@ -14,7 +14,7 @@ import System.IO.Streams (InputStream, OutputStream, stdout)
 import qualified System.IO.Streams as Streams
 import qualified Data.Aeson as A
 import Data.Aeson
-import ArmoredTypes hiding (Result)
+import ArmoredTypes hiding (Result, Value)
 --import qualified Demo3Shared as AD
 --import Demo3Shared
 --import ProtoTypes hiding (Result)
@@ -27,12 +27,15 @@ import TPM.Types (TPM_PCR_SELECTION, TPM_PCR_COMPOSITE, TPM_IDENTITY_CONTENTS, T
 import qualified ArmoredTypes as Ad
 import Data.Bits (shiftR)
 import Network.Info
-
+import Network.Curl (withCurlDo, curlPost) -- FOR FORWARDING TO TUNA
+import Data.List
 import System.Timeout
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Char8 as Char8
 
 import Data.Word (Word16)
+import System.IO.Error (tryIOError)
+
 
 import ByteStringJSON (encodeToText)
 --foreign export converseWithScottyCA :: CARequest -> IO (Either String CAResponse)
@@ -335,7 +338,7 @@ sendG chan armored = do
                               let err = "no port of theirs given!!!! I'm trying to send here!!!"
                               putStrLn err
                             Just theirPort -> do
-                              curConn <- sendHttp (armoredToShared armored) theirIP theirPort
+                              mcurConn <- sendHttp (armoredToShared armored) theirIP theirPort
                               putStrLn "Tried to send http!!" -- "HTTPINFO??? I don't know what to do with that yet."
 
 sendG' :: Channel -> [ArmoredData] -> IO ()
@@ -374,11 +377,39 @@ receiveShared chan = do
 			return shared
 sendHttp :: Shared -> Hostname -> Port ->IO Connection
 sendHttp shared iip pport = do
-			    putStrLn "doing sendHttp. specifically about to openconnection"
-			    c <- openConnection iip pport
-			    putStrLn "Just opened a connection to send on http"
-			    sendHttp' shared c
-			    return c
+      {- EDIT FOR TUNA FORWARDING -}
+      case Just 4 {-stripPrefix ((init . show) "10.100.0.") (show iip)-} of
+        Just _ -> do
+          putStrLn $ "TUNA INTERCEPTING MESSAGE TO FORWARD TO: " ++ (show iip) ++ " ON: " ++ (show pport)
+          sendToTuna iip pport (toJSON shared)          
+        Nothing -> do
+        --putStrLn "doing sendHttp. specifically about to openconnection"
+	  c <- openConnection iip pport
+          putStrLn "Just opened a connection to send on http"
+          sendHttp' shared c
+          return c
+
+{- EDIT FOR TUNA FORWARDING -}
+tunaIP= "129.237.120.39"
+tunaport = 55111
+sendToTuna :: Hostname -> Port -> Value -> IO Connection
+sendToTuna i p v = do
+   c <- openConnection tunaIP tunaport
+   putStrLn "Just opened a connection to TUNA"
+   q <- buildRequest $ do
+      http POST "/"
+      setAccept "text/html/json"
+      setContentType "application/x-www-form-urlencoded"
+    --Prelude.putStrLn ( "Request: " ++ (show req))
+   mip <- getMyIP' 
+   let nvs = [("request", (toStrict (Data.Aeson.encode (mip, i,p,v))))]
+   --Prelude.putStrLn "about to send request"
+   let x = encodedFormBody nvs
+   --print "Made it here yaaaaaaaaaaaay"
+   sendRequest c q (x)
+   putStrLn "Just performed sendRequeset to TUNA' "
+   return c
+{- ------------------------ -}   
 
 
 sendHttp' :: Shared -> Connection -> IO ()
@@ -402,10 +433,10 @@ receiveHttp c = receiveResponse c (\p i -> do
     			  case x of
     			     (Nothing) -> return (Left "Error performing Streams.read")
     			     (Just something) -> do
-	     			 --print something
+	     			 putStrLn $ "Here is what it fails to parse: " ++ (show something) --print something
 	     			 let caresp = (Data.Aeson.eitherDecode (fromStrict something) :: Either String Shared)
 	     			 case caresp of
-	     			 	(Left err) -> return (Left ("Error decoding CAResponse. Error was: " ++ err))
+	     			 	(Left err) -> return (Left ("Error decoding shared thing. Error was: " ++ err))
 	     			 	(Right r)  -> return (Right r)
 		  )
 
@@ -451,17 +482,10 @@ readComp' = do
 
 getMyIP :: IO IPv4
 getMyIP = do
-  ls <- getNetworkInterfaces
-  let ipp = getMyIPHelper "eth0" ls
-  if ( (show) ipp) /= "0.0.0.0"
-    then return (ipp)
-    else do
-     return $ getMyIPHelper "xenbr0" ls
-    where
-     getMyIPHelper str ls = let ls' = Prelude.filter (\x -> (name x) == str) ls
-                                ni = Prelude.head ls' in
-                            ipv4 ni
-
+  ips <- getNetworkInterfaces
+  let ip = Data.List.map ipv4 $ Data.List.filter (\x-> ((name x) /= "lo") && (show (ipv4 x)) /= "0.0.0.0" ) ips
+  putStrLn $ "GETTING IP INFO: " ++ (show ip)
+  return (Data.List.head ip)
 
 getMyIP' = do
          ipv4 <- getMyIP
@@ -475,11 +499,16 @@ getMyDomId = getDomId
 whoAmI :: Role -> IO Entity
 whoAmI r = do
   i@(IPv4 myIP) <- getMyIP
-  myID <- getMyDomId
+  emyID <- tryIOError getMyDomId
+  let mmyID = case emyID of
+               Left err -> Nothing
+               Right x -> Just x 
+--                putStrLn $ "getMyDomId unsuccessful: " ++ (show err)
+                  
   return $ Entity {
        entityName =show r --  "Attester the Magnificent"
      , entityIp = Just (Char8.pack (show i))
-     , entityId = Just myID
+     , entityId = mmyID
      , entityRole = r
      , entityNote = Nothing
      }
