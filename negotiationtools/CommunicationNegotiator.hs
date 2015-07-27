@@ -102,7 +102,10 @@ waitPatiently mvar startSeconds = do
   			isEmpt <- isEmptyMVar mvar
   			putStrLn $ "is mvar empty? " ++ (show isEmpt)
   			case isEmpt of
-  			  False -> return () --something is there! we are done!
+  			  False -> do
+                           x <- readMVar mvar
+                           putStrLn $ "Here is what was there: " ++ (show x)
+                           return () --something is there! we are done!
   			  True  -> do
 				curTime <- getCurrentTime
 				let curSeconds = utctDayTime curTime
@@ -284,7 +287,8 @@ tryCreateVChannel me ent = do
 			   		      n1 <- randomIO :: IO Integer
 			   		      let vchanReq = VChanRequest me n1
                                               putStrLn "about to send VChannel request"
-			   		      sendHttp' (WCommRequest vchanReq) conn
+			   		      --sendHttp' (WCommRequest vchanReq) conn
+                                              sendHttp (WCommRequest vchanReq) ip negotiationport
                                               putStrLn "sent vChannelRequest, about to attempt to receive back over HTTP"
 			   		      eitherSharedBack <- receiveHttp conn  --this should be the challenge nonce for vchan comm.
                                               putStrLn $ "received over http. I got this: " ++ (show eitherSharedBack) 
@@ -424,20 +428,27 @@ negotiator = do
 				     let myport = (if portSuggestion `elem` takenPorts 
 				  	            then ((maximum takenPorts) + 1)  --possible security issue. 
 				  	            else portSuggestion )
-				     conn <-liftIO $ openConnection ip portSuggestion
-                                     liftIO $ sendHttp' (WNonce (nonce + 1)) conn
+                                     --EDITED TO SEND TO TUNA
+				     --conn <-liftIO $ openConnection ip portSuggestion
+                                     --liftIO $ sendHttp' (WNonce (nonce + 1)) conn
+                                     liftIO $ sendHttp (WNonce (nonce + 1)) ip portSuggestion
 				     --TODO send nonce + 1 here.
 				     armoredlsTMVar <- liftIO ( newTMVarIO [] :: IO (TMVar [Armored]))
       	  		   	     unitTMVar <- liftIO (newEmptyTMVarIO  :: IO (TMVar ()) ) --empty since obviously no messages yet.
-      	  		   	     let httpInfo = HttpInfo Nothing myport (Just portSuggestion) ip (Just conn) armoredlsTMVar unitTMVar
+      	  		   	     -- {- TUNA EDIT -} let httpInfo = HttpInfo Nothing myport (Just portSuggestion) ip (Just conn) armoredlsTMVar unitTMVar
+                                     let httpInfo = HttpInfo Nothing myport (Just portSuggestion) ip (Nothing) armoredlsTMVar unitTMVar
                                      threadID <- liftIO $ forkIO (httpServe httpInfo)
-                                     let httpInfo' = HttpInfo (Just threadID) myport (Just portSuggestion) ip (Just conn) armoredlsTMVar unitTMVar
+                                     -- TUNA EDIT: Just conn  ---> Nothing
+                                     --let httpInfo' = HttpInfo (Just threadID) myport (Just portSuggestion) ip (Just conn) armoredlsTMVar unitTMVar
+                                     let httpInfo' = HttpInfo (Just threadID) myport (Just portSuggestion) ip (Nothing) armoredlsTMVar unitTMVar
       	  		   	     let channel = Channel entity httpInfo'
       	  		   	     let channelEntry = ChannelEntry ("ChannelWith" ++ (entityName entity)) channel
       	  		   	     
       	  		   	     liftIO $ atomically $ putTMVar chanETMVar (channelEntry:chanls)
                                      liftIO $ putStrLn "Added channel to canETMVar list of channels"
-      	  		   	     json $ HttpSuccess myport	
+                                     --liftIO $ sendHttp (HttpSuccess myport) ip (fromIntegral negotiationport)
+      	  		   	     json $ HttpSuccess myport
+                x@_ -> text "other thing received"
     return ()
 
 httpExpectNonce :: ChannelInfo -> MVar (Either String Shared) -> IO ()
@@ -445,8 +456,10 @@ httpExpectNonce (HttpInfo _ myport theirPort theirIP maybeConn msglsTMVar unitTM
   let intPort = (fromIntegral (myport) :: Int)
   Scotty.scotty intPort $ do
     Scotty.post "/" $ do
-      a <- (param "request") :: ActionM LazyText.Text    
+      a <- (param "request") :: ActionM LazyText.Text
+      --liftIO $ putStrLn $ "httpExpectNonce received: " ++ (show a)
       let jj = eitherDecode (LazyEncoding.encodeUtf8 a) :: Either String Shared
+      --liftIO $ putStrLn $ "httpExpectNonce: result of eitherDecode: " ++  (show a)
       case jj of
 	(Left err)     -> text (LazyText.pack "ERROR: Improper request.")
 	(Right shared) -> do
@@ -457,11 +470,21 @@ httpExpectNonce (HttpInfo _ myport theirPort theirIP maybeConn msglsTMVar unitTM
               json (WNonce (n1 +1))
             _         -> do 
 	      let armored = sharedToArmored shared
-	      liftIO $ atomically $ do 
+              liftIO $ putStrLn $ "httpExpectNonce: result of calling sharedToArmored: " ++ (show armored) ++ ("\n\n\n\n")
+	      mayberes <- liftIO $ timeout 10000 $ atomically $ do                
                 chanls <- takeTMVar msglsTMVar
 	        let chanls' = chanls ++ [armored]
 	        putTMVar msglsTMVar chanls'
-	        putTMVar unitTMVar ()  -- definitely has something now. 
+	        putTMVar unitTMVar ()  -- definitely has something now.
+              case mayberes of
+                Nothing -> do
+                  liftIO $ putStrLn $ "TIMEOUT TAKING MVAR OR TMVAR"
+                  b <- liftIO $ atomically $ isEmptyTMVar msglsTMVar
+                  liftIO $ putStrLn $ "msglsTMVar state: " ++ (show b)
+                Just _ -> do
+                  return ()
+                  --liftIO $ putStrLn $ "how did we get here?"
+                  
 	      json (HttpSuccess (myport)) -- don't know why it won't let me put an empty string in there.
 		  
   return ()
@@ -482,7 +505,7 @@ httpServe (HttpInfo _ myport theirPort theirIP maybeConn msglsTMVar unitTMVar) =
 	     -- myprint' ("Received (Text):\n" ++ (show a)) 2 --debug show of text.
 	     -- myprint' ("Received (UTF8):\n" ++ (show (LazyEncoding.encodeUtf8 a))) 2 --debug printout.
 	     -- myprint' ("Data received on port: " ++ (show port)) 1
-	      
+	      liftIO $ putStrLn $ "httpServe received: " ++ (show a)
 	      --first converts the Text to UTF8, then then attempts to read a CARequest
 	      let jj = eitherDecode (LazyEncoding.encodeUtf8 a) :: Either String Shared
 	      case jj of

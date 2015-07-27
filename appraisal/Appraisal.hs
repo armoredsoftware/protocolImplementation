@@ -49,6 +49,9 @@ appmain' protoId chan = do
               Left s -> return $ "Error occured: " ++ s
               Right  resp@(ev, n, comp, cert@(SignedData aikPub aikSig), qSig) ->
                 evaluate protoId ([D0, D1, D2], nonce, pcrSelect) (ev, n, comp, cert, qSig) -- "Response received:\n" ++ (show resp)
+              Right x@_ -> do
+                let strr =  "ERROR: resp from runproto did not match expected.\n\n\n"
+                return strr
   putStrLn str
   return str
 

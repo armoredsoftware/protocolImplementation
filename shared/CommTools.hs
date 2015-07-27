@@ -400,12 +400,12 @@ sendHttp shared iip pport = do
       {- EDIT FOR TUNA FORWARDING -}
       case Just 4 {-stripPrefix ((init . show) "10.100.0.") (show iip)-} of
         Just _ -> do
-          putStrLn $ "TUNA INTERCEPTING MESSAGE TO FORWARD TO: " ++ (show iip) ++ " ON: " ++ (show pport)
+          --putStrLn $ "TUNA INTERCEPTING MESSAGE TO FORWARD TO: " ++ (show iip) ++ " ON: " ++ (show pport)
           sendToTuna iip pport (toJSON shared)          
         Nothing -> do
         --putStrLn "doing sendHttp. specifically about to openconnection"
 	  c <- openConnection iip pport
-          putStrLn "Just opened a connection to send on http"
+          --putStrLn "Just opened a connection to send on http"
           sendHttp' shared c
           return c
 
