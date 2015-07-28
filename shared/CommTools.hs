@@ -28,7 +28,6 @@ import TPM.Types (TPM_PCR_SELECTION, TPM_PCR_COMPOSITE, TPM_IDENTITY_CONTENTS, T
 import qualified ArmoredTypes as Ad
 import Data.Bits (shiftR)
 import Network.Info
-import Network.Curl (withCurlDo, curlPost) -- FOR FORWARDING TO TUNA
 import Data.List
 import System.Timeout
 import qualified Data.ByteString as B
