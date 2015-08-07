@@ -14,19 +14,20 @@ library
   hs-source-dirs:       ./, ../provisioning
   other-modules:
   build-depends:        base >= 4,
-                        tpm-emulator,
-                        VChanUtil,
-                        RSA,
-                        SHA,
                         binary,
-                        transformers,
-                        containers,
                         bytestring,
+                        cipher-aes,
+                        containers,
                         crypto-api,
                         mtl,
-                        cipher-aes,
+                        random,
+                        remote-monad,
+                        RSA,
+                        SHA,
                         sharedarmor,
-                        random
+                        tpm-emulator,
+                        transformers,
+                        VChanUtil
 
 
   ghc-options: -O -threaded

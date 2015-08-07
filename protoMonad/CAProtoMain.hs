@@ -11,6 +11,7 @@ import TPM
 import TPMUtil
 import VChanUtil hiding (send, receive)
 import CommTools(killChannel, getCaDomId)
+import MeasurerComm
 
 import System.IO
 import System.Random
