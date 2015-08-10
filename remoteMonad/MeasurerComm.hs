@@ -5,6 +5,7 @@ module MeasurerComm
 ( getSocket
 , measureSession
 , debugSession
+, Measurement (..)
 )
 where
 
@@ -24,6 +25,18 @@ import Data.Maybe (fromMaybe)
 import Network.Socket
 import qualified Network.Socket.ByteString as NBS
 
+data Measurement = Measurement { next:: Maybe (Measurement),
+                                res::Text.Text,
+                                resultType::Text.Text}
+    deriving Show
+
+instance FromJSON Measurement where
+    parseJSON (Object v) = Measurement <$>
+                             v .:? "next" <*>
+                             v .: "data"<*>
+                             v .: "type"
+    parseJSON _          = mzero
+                                                                
 
 
 debugSession :: Socket -> Session
