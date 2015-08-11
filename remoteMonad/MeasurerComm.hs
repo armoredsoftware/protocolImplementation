@@ -14,13 +14,15 @@ import Control.Monad.Remote.JSON
 import Control.Monad.Remote.JSON.Debug (traceSessionAPI)
 import Control.Monad.Remote.JSON.Types (SessionAPI(..))
 
-import Control.Monad (void)
-import Data.Aeson (decodeStrict, encode, Value(..))
+import Control.Monad (void, mzero)
+import Control.Applicative
+import Data.Aeson ((.:),(.:?),FromJSON(..),decodeStrict, encode, Value(..))
 
 import Data.ByteString.Lazy (toStrict)
 import Data.ByteString (useAsCString, packCString)
 
 import Data.Maybe (fromMaybe)
+import qualified Data.Text as Text
 
 import Network.Socket
 import qualified Network.Socket.ByteString as NBS
@@ -38,6 +40,11 @@ instance FromJSON Measurement where
     parseJSON _          = mzero
                                                                 
 
+
+measurementToList :: Measurement -> [Text.Text]
+measurementToList m = case next m of
+                         Nothing -> [res m]
+                         Just m2 -> (res m): (measurementToList m2)
 
 debugSession :: Socket -> Session
 debugSession sock = session $ traceSessionAPI "MeasureComm" $ remoteSend sock
