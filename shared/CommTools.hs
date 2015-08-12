@@ -400,7 +400,7 @@ sendHttp shared iip pport = do
       case Just 4 {-stripPrefix ((init . show) "10.100.0.") (show iip)-} of
         Just _ -> do
           --putStrLn $ "TUNA INTERCEPTING MESSAGE TO FORWARD TO: " ++ (show iip) ++ " ON: " ++ (show pport)
-          sendToTuna iip pport (toJSON shared)          
+          sendToTuna iip pport (toJSON shared)
         Nothing -> do
         --putStrLn "doing sendHttp. specifically about to openconnection"
 	  c <- openConnection iip pport
@@ -420,7 +420,7 @@ sendToTuna i p v = do
       setAccept "text/html/json"
       setContentType "application/x-www-form-urlencoded"
     --Prelude.putStrLn ( "Request: " ++ (show req))
-   mip <- getMyIP' 
+   mip <- getMyIP'
    let nvs = [("request", (toStrict (Data.Aeson.encode (mip, i,p,v))))]
    --Prelude.putStrLn "about to send request"
    let x = encodedFormBody nvs
@@ -428,7 +428,7 @@ sendToTuna i p v = do
    sendRequest c q (x)
    putStrLn "Just performed sendRequeset to TUNA' "
    return c
-{- ------------------------ -}   
+{- ------------------------ -}
 
 
 sendHttp' :: Shared -> Connection -> IO ()
@@ -506,6 +506,11 @@ getMyIP = do
   putStrLn $ "GETTING IP INFO: " ++ (show ip)
   return (Data.List.head ip)
 
+getMyIPString = do
+  pv4 <- getMyIP
+  return (show pv4)
+
+
 getMyIP' = do
          ipv4 <- getMyIP
          return (Char8.pack (show ipv4))
@@ -521,9 +526,9 @@ whoAmI r = do
   emyID <- tryIOError getMyDomId
   let mmyID = case emyID of
                Left err -> Nothing
-               Right x -> Just x 
+               Right x -> Just x
 --                putStrLn $ "getMyDomId unsuccessful: " ++ (show err)
-                  
+
   return $ Entity {
        entityName =show r --  "Attester the Magnificent"
      , entityIp = Just (Char8.pack (show i))

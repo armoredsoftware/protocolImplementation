@@ -39,7 +39,7 @@ appCommInit attChan protoId {-domid-} = do
 --main = appmain' 1
 
 appmain' :: Int -> Channel -> IO String
-appmain' protoId chan = do 
+appmain' protoId chan = do
   putStrLn "Main of entity Appraiser"
   env <- appCommInit chan protoId {-3-}
   let pcrSelect = mkTPMRequest [0..23]
@@ -78,14 +78,21 @@ evaluate pId (d, nonceReq, pcrSelect)
   goldenPcrComposite <- readGoldenComp
 
   let r4 = pcrComp == goldenPcrComposite
-      r5 = case pId of 1 -> ev == [M0 empty, M1 empty, M2 empty]
-                       2 -> ev == []
+      (r5, evVal) = case pId of
+        1 -> let m0 = Prelude.head ev in
+                 case m0 of
+                   M0 i -> (i >= (20 :: Int), i)
+                   _ -> error "Measurement descriptor not implemented!!" --(False, 0)
+
+
+                                     --ev == [M0 empty, M1 empty, M2 empty]
+        2 -> (ev == [], 0)
   putStrLn $ show ev
   sequence $ [logf, putStrLn] <*> (pure ("CACert Signature: " ++ (show r1)))
   sequence $ [logf, putStrLn] <*> (pure ( "Quote Package Signature: " ++ (show r2)  ))
   sequence $ [logf, putStrLn] <*> (pure ( "Nonce: " ++ (show r3)))
   sequence $ [logf, putStrLn] <*> (pure ( "PCR Values: " ++ (show r4)))
-  if (or[pId == 1, pId == 2] ) then sequence ([logf, putStrLn] <*> (pure ("Evidence: " ++ (show r5)))) else return [()]
+  if (or[pId == 1, pId == 2] ) then sequence ([logf, putStrLn] <*> (pure ("Evidence(value >= 20?): " ++ (show r5) ++ ", Evidence Value: " ++ (show evVal)))) else return [()]
   return $ case (and [r1, r2, r3, r4, r5]) of
     True -> "All checks succeeded"
     False -> "At least one check failed"

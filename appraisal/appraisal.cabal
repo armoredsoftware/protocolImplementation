@@ -25,8 +25,9 @@ library
                         cipher-aes,
                         sharedarmor,
                         random,
-                        protoMonad
-                        
+                        protoMonad,
+                        remote-monad
+
   --Main-is: AppraiserMain.hs
   ghc-options: -O  -threaded
 

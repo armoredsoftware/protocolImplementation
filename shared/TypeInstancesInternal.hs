@@ -467,9 +467,22 @@ instance FromJSON EvidenceDescriptor where
 	parseJSON (DA.String "D2")   = pure D2
 	parseJSON (DA.String "DONE") = pure DONE
 
-
 instance ToJSON EvidencePiece where
-	toJSON (M0 rep0) = object [ "M0" .= encodeToText (toStrict rep0) ]
+  toJSON (M0 m0) = object
+                ["M0" .= DA.String "EvidencePiece"
+                , "Int"   .= toJSON m0
+                ]
+  toJSON (M1 rep1) = object [ "M1" .= encodeToText (toStrict rep1) ]
+  toJSON (M2 rep2) = object [ "M2" .= encodeToText (toStrict rep2) ]
+  toJSON OK = DA.String "OK"
+
+instance FromJSON EvidencePiece where
+  parseJSON (DA.Object o) | HM.member "M0" o = M0 <$> o .: "Int"
+                          | HM.member "M1" o = M1 <$> ((o .: "M1") >>= decodeFromTextL)
+			  | HM.member "M2" o = M2 <$> ((o .: "M2") >>= decodeFromTextL)
+  parseJSON (DA.String "OK") = pure OK
+{-instance ToJSON EvidencePiece where
+	toJSON (M0 rep0) = object [ "M0" .= toJSON rep0 ]--encodeToText (toStrict $ encode rep0) ]
 	toJSON (M1 rep1) = object [ "M1" .= encodeToText (toStrict rep1) ]
 	toJSON (M2 rep2) = object [ "M2" .= encodeToText (toStrict rep2) ]
 	toJSON OK = DA.String "OK"
@@ -478,6 +491,8 @@ instance FromJSON EvidencePiece where
 				| HM.member "M1" o = M1 <$> ((o .: "M1") >>= decodeFromTextL)
 				| HM.member "M2" o = M2 <$> ((o .: "M2") >>= decodeFromTextL)
 	parseJSON (DA.String "OK") = pure OK
+-}
+-- | HM.member "ValInt" o = ValInt <$> o .: "Int"
 
 instance Binary EvidencePiece where
          put (M0 req) = do put (0::Word8);

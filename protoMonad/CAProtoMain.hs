@@ -11,7 +11,7 @@ import TPM
 import TPMUtil
 import VChanUtil hiding (send, receive)
 import CommTools(killChannel, getCaDomId)
-import MeasurerComm
+import MeasurerComm(getTest1cVarValue)
 
 import System.IO
 import System.Random
@@ -117,7 +117,12 @@ caAtt_CA signedContents = do
   return (ekEncBlob, kEncBlob)
 
 caAtt_Mea :: EvidenceDescriptor -> Proto Evidence
-caAtt_Mea eds = return [M0 empty, M1 empty, M2 empty]
+caAtt_Mea ed = liftIO $
+  case ed of
+    D0 -> do
+      cVarValue <- liftIO $ getTest1cVarValue {-return [M0 empty, M1 empty, M2 empty]-}
+      return $ [M0 cVarValue]
+    x -> error $ "Evidence Descriptor" ++ (show x) ++ "not supported yet"
 
 caEntity_App :: EvidenceDescriptor -> Nonce -> TPM_PCR_SELECTION ->
                 Proto (Evidence, Nonce, TPM_PCR_COMPOSITE,

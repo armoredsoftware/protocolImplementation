@@ -4,7 +4,7 @@ module ProtoActions where
 import ArmoredTypes
 import CommTools(sendG', receiveG')
 import ProtoMonad
-import VChanUtil
+import VChanUtil hiding (send, receive)
 import TPM.Types
 
 import Data.ByteString.Lazy hiding (pack, map, putStrLn)

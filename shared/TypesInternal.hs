@@ -117,9 +117,9 @@ data EvidenceDescriptor = D0 | D1 | D2
 
 type Evidence = [EvidencePiece]
 
-data EvidencePiece = M0 M0Rep 
+data EvidencePiece = M0 M0Rep
                    | M1 M1Rep
-                   | M2 M2Rep 
+                   | M2 M2Rep
                    | OK deriving (Eq, Ord, Show)
 
 data Armored = Var String
@@ -340,6 +340,6 @@ data TPM_DATA =
 
 
 
-type M0Rep = ByteString
+type M0Rep = Int
 type M1Rep = ByteString
 type M2Rep = ByteString
