@@ -11,7 +11,7 @@ import TPM
 import TPMUtil
 import VChanUtil hiding (send, receive)
 import CommTools(killChannel, getCaDomId)
-import MeasurerComm(getTest1cVarValue)
+import MeasurerComm(getTest1cVarValue, getTestBufferValues)
 
 import System.IO
 import System.Random
@@ -21,8 +21,9 @@ import Data.Digest.Pure.SHA (bytestringDigest, sha1)
 import Crypto.Cipher.AES
 import Codec.Crypto.RSA hiding (sign, verify, PublicKey, PrivateKey, encrypt, decrypt)
 
-
+import Control.Applicative hiding (empty)
 import Data.ByteString.Lazy hiding (replicate, putStrLn)
+import Control.Concurrent (threadDelay)
 
 iPass = tpm_digest_pass aikPass
 oPass = tpm_digest_pass ownerPass
@@ -64,6 +65,7 @@ caEntity_Att = do
              ATPM_PCR_COMPOSITE pcrComp,
              (quoteExData !! 2),
              ASignature qSig]
+      liftIO $ putStrLn $ "Sending response to Appraiser: \n\n" ++ (show response) ++ "\n\n"
       send appraiserEntityId response
       return ()
 
@@ -116,13 +118,18 @@ caAtt_CA signedContents = do
   --liftIO $ killChannel attChan
   return (ekEncBlob, kEncBlob)
 
+
+
+{-(s, i) <- getTestBufferValues
+      return [M0 i, M1 s] -}
 caAtt_Mea :: EvidenceDescriptor -> Proto Evidence
-caAtt_Mea ed = liftIO $
-  case ed of
-    D0 -> do
-      cVarValue <- liftIO $ getTest1cVarValue {-return [M0 empty, M1 empty, M2 empty]-}
+caAtt_Mea ed = do
+  pId <- protoIs
+  case pId of
+    1 -> do
+      (cVarValue, sock) <- liftIO $ getTest1cVarValue
       return $ [M0 cVarValue]
-    x -> error $ "Evidence Descriptor" ++ (show x) ++ "not supported yet"
+      --x -> error $ "Evidence Descriptor" ++ (show x) ++ "not supported yet"
 
 caEntity_App :: EvidenceDescriptor -> Nonce -> TPM_PCR_SELECTION ->
                 Proto (Evidence, Nonce, TPM_PCR_COMPOSITE,
@@ -130,7 +137,7 @@ caEntity_App :: EvidenceDescriptor -> Nonce -> TPM_PCR_SELECTION ->
 caEntity_App d nonceA pcrSelect = do
  -- let nonceA = 34
   pId <- protoIs
-
+  liftIO $ sequence $ [logf, putStrLn] <*> (pure ( "Got here......."))
   let request = case pId of
         1 -> [AAEvidenceDescriptor d, ANonce nonceA, ATPM_PCR_SELECTION pcrSelect]
         2 -> [ANonce nonceA, ATPM_PCR_SELECTION pcrSelect]
@@ -139,12 +146,15 @@ caEntity_App d nonceA pcrSelect = do
              --return []
 
   send 1 request
-
+  --liftIO $ logf "Sent Request \n"
+  --liftIO $ threadDelay 5000000
+  --liftIO $ logf "Appraiser receiving \n"
   case pId of
         1 -> do
-          [AEvidence e, ANonce nA, ATPM_PCR_COMPOSITE pComp,
+          response@[AEvidence e, ANonce nA, ATPM_PCR_COMPOSITE pComp,
            ASignedData (SignedData (ATPM_PUBKEY aikPub) aikSig),
            ASignature sig] <- receive 1
+          --liftIO $ logf $ "Appraiser received: \n" ++ (show response) ++ "\n\n"
           return (e, nA, pComp, SignedData aikPub aikSig, sig)
 
         2 -> do
@@ -216,3 +226,9 @@ tpmQuote qKeyHandle pcrSelect exDataList = liftIO $ do
       evBlobSha1 = bytestringDigest $ sha1 evBlob
   (comp, sig) <- mkQuote qKeyHandle iPass pcrSelect evBlobSha1
   return (comp, sig)
+
+logf ::String -> IO ()
+logf m = do
+  h <- openFile "log.1" AppendMode
+  hPutStrLn h (m ++ "\n")
+  hClose h

@@ -341,5 +341,5 @@ data TPM_DATA =
 
 
 type M0Rep = Int
-type M1Rep = ByteString
+type M1Rep = String
 type M2Rep = ByteString

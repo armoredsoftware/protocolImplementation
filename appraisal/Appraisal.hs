@@ -82,18 +82,25 @@ evaluate pId (d, nonceReq, pcrSelect)
         1 -> let m0 = Prelude.head ev in
                  case m0 of
                    M0 i -> (i >= (20 :: Int), i)
-                   _ -> error "Measurement descriptor not implemented!!" --(False, 0)
+                   _ -> error "Measurement descriptor not implemented!!" --(False, 0
 
-
-                                     --ev == [M0 empty, M1 empty, M2 empty]
         2 -> (ev == [], 0)
+
+      m1 = ev !! 1
+      passString = case m1 of
+        M1 s -> s
+        _ -> error "Measurement descriptor not implemented!!"
+      goldenPassword = "\"12345\\000\\000\\000\\260\\005\""
+      r6 = passString == goldenPassword
+
   putStrLn $ show ev
   sequence $ [logf, putStrLn] <*> (pure ("CACert Signature: " ++ (show r1)))
   sequence $ [logf, putStrLn] <*> (pure ( "Quote Package Signature: " ++ (show r2)  ))
   sequence $ [logf, putStrLn] <*> (pure ( "Nonce: " ++ (show r3)))
   sequence $ [logf, putStrLn] <*> (pure ( "PCR Values: " ++ (show r4)))
-  if (or[pId == 1, pId == 2] ) then sequence ([logf, putStrLn] <*> (pure ("Evidence(value >= 20?): " ++ (show r5) ++ ", Evidence Value: " ++ (show evVal)))) else return [()]
-  return $ case (and [r1, r2, r3, r4, r5]) of
+  --if (or[pId == 1, pId == 2] ) then sequence ([logf, putStrLn] <*> (pure ("Evidence(value >= 20?): " ++ (show r5) ++ ", Evidence Value: " ++ (show evVal)))) else return [()]
+  if (or[pId == 1, pId == 2] ) then sequence ([logf, putStrLn] <*> (pure ("Evidence: " ++ (show r6) ++ ", Password Value: " ++ (show passString) ++ ", session Int Value: " ++ (show evVal)))) else return [()]
+  return $ case (and [r1, r2, r3, r4, {-r5,-} r6]) of
     True -> "All checks succeeded"
     False -> "At least one check failed"
 

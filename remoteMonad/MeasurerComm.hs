@@ -7,6 +7,7 @@ module MeasurerComm
 , measureSession
 , debugSession
 , getTest1cVarValue
+, getTestBufferValues
 , Measurement (..)
 )
 where
@@ -110,19 +111,32 @@ getPid = do
   stringArgs <- getArgs
   return $ stringArgs !! 4
 
-getTest1cVarValue :: IO Int
+getTest1cVarValue :: IO (Int, Socket)
 getTest1cVarValue = do
   host <- getMyIPString
   port <- getPort
   pid <- getPid
-  m <- getMeasurement1 host port pid
+  (m, sock) <- getMeasurement1 host port pid
   let text = topMeasurement m
       s = Text.unpack text
       i = read s
-  return i
+  return (i, sock)
 
+getTestBufferValues :: IO (String, Int)
+getTestBufferValues = do
+  host <- getMyIPString
+  port <- getPort
+  pid <- getPid
+  (password, session) <- getMeasurement2 host port pid
+  let pText = topMeasurement password
+      pString = Text.unpack pText
+      sText = topMeasurement session
+      sString = Text.unpack sText
+      sInt = read sString
+  putStrLn $"END OF getTestBufferValues!!!\n"  ++ "Decoded evidence:  \n" ++ "pString:  " ++ pString ++ "\n\nsInt: " ++ (show sInt) ++ "\n\n"
+  return (pString, sInt)
 
-getMeasurement1 :: String -> String -> String -> IO Measurement
+getMeasurement1 :: String -> String -> String -> IO (Measurement, Socket)
 getMeasurement1 host port pidString = do
 
           sock <- getSocket host {-"10.100.0.249"-} port
@@ -134,14 +148,48 @@ getMeasurement1 host port pidString = do
           threadDelay 6000000
           t<- Jsonrpc.send (mySession sock) $ do
                        b <- method "eval" (List [String "(load 1)"])
+                       --notification "eval" (List [String "(quit)"])
+                       return b
+          --close sock
+          case fromJSON t of
+             Success (m :: Measurement) -> return (m, sock)
+             Error s ->  error s
+
+getMeasurement2 :: String -> String -> String -> IO (Measurement,Measurement)
+getMeasurement2 host port pidString = do
+
+          sock <- getSocket host {-"10.100.0.249"-} port
+
+          a <- Jsonrpc.send (mySession sock) $ do
+                       notification "eval" (List [String (Text.pack ("(set_target "++ pidString ++")"))])
+                       method "eval" (List [String (Text.pack "(hook (reach \"buffer_overflow2.c\" 37 0) '(store 1 (measure (var \"password\"))))")])
+          print a
+          --threadDelay 2000000
+
+          b <- Jsonrpc.send (mySession sock) $ do
+                       method "eval" (List [String (Text.pack "(hook (reach \"buffer_overflow2.c\" 38 0) '(store 2 (measure (var \"session\"))))")])
+          print b
+          putStrLn $ "\n\nMEASUREMENTS HOOKED!!!!!!!!!!!!!!!!!!!!!!\n"
+          threadDelay 8000000
+
+          t<- Jsonrpc.send (mySession sock) $ do
+                       b <- method "eval" (List [String "(load 1)"])
+                       --notification "eval" (List [String "(quit)"])
+                       return b
+
+          q<- Jsonrpc.send (mySession sock) $ do
+                       b <- method "eval" (List [String "(load 2)"])
                        notification "eval" (List [String "(quit)"])
                        return b
           close sock
           case fromJSON t of
-             Success (a :: Measurement) -> return a
+             Success (m1 :: Measurement) ->
+               case fromJSON q of
+                 Success (m2 :: Measurement) -> do
+                   putStrLn $ "ATTESTER MEASUREMENTS:\n\n\n" ++ (show m1) ++ "\n\n" ++ (show m2) ++ "\n\n\n"
+                   return (m1, m2)
+                 Error s ->  error s
              Error s ->  error s
-
-
 
 
 
