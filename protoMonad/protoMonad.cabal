@@ -27,7 +27,11 @@ library
                         sharedarmor,
                         tpm-emulator,
                         transformers,
-                        VChanUtil
+                        VChanUtil,
+                        network,
+                        text,
+                        aeson,
+                        remote-json
 
 
   ghc-options: -O -threaded

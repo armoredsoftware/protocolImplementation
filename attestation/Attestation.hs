@@ -7,6 +7,7 @@ import ProtoActions
 import VChanUtil
 import TPMUtil
 import Keys
+import MeasurerComm
 
 
 import Prelude
@@ -37,8 +38,11 @@ attCommInit chan protoId {-domidS-} = do
   let caPub = appPub --Not used
       pubs = M.fromList [(1,appPub), (2, caPub)]
 
+  host <- getMyIPString
+  port <- getPort
+  sock <- getSocket host {-"10.100.0.249"-} port
 
-  return $ ProtoEnv 0 myPri ents pubs 0 0 0 protoId
+  return $ ProtoEnv 0 myPri ents pubs 0 0 0 protoId (Just sock)
 
 
 --main = attmain' [1, 4]

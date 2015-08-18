@@ -12,6 +12,7 @@ import qualified Control.Monad.Trans.Reader as T
 import Control.Monad.Error --import Control.Monad.Except
 import qualified Control.Monad.Trans.Error as ET
 import Control.Monad
+import Network.Socket
 
 type Proto = T.ReaderT ProtoEnv (ErrorT String IO)
 
@@ -31,13 +32,21 @@ data ProtoEnv = ProtoEnv {
   packScheme :: Int,
   encScheme :: Int,
   signScheme :: Int,
-  protoId :: Int
+  protoId :: Int,
+  meaSocket :: Maybe Socket
 }
 
 protoIs :: Proto Int
 protoIs = do
   id <- T.asks protoId
   return id
+
+getMeaSocket :: Proto Socket
+getMeaSocket = do
+  sock <- T.asks meaSocket
+  case sock of
+    Just s -> return s
+    Nothing -> error "No socket in environment" --return sock
 
 getEntityChannel :: EntityId -> Proto Channel
 getEntityChannel id = do

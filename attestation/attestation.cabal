@@ -36,7 +36,8 @@ library
                         HTTP,
                         cipher-aes,
                         sharedarmor,
-                        protoMonad
+                        protoMonad,
+                        remote-monad
 
 
  -- Main-is: AttesterMain.hs

@@ -9,6 +9,7 @@ import TPM
 import TPMUtil
 import Keys
 import Provisioning(readGoldenComp)
+import MeasurerComm
 
 
 import Prelude
@@ -32,8 +33,11 @@ appCommInit attChan protoId {-domid-} = do
   --attPub <-getBPubKey
   let pubs = M.fromList [(1,attPub)]
 
+  {-host <- getMyIPString
+  port <- getPort
+  sock <- getSocket host {-"10.100.0.249"-} port -}
 
-  return $ ProtoEnv 0 myPri ents pubs 0 0 0 protoId
+  return $ ProtoEnv 0 myPri ents pubs 0 0 0 protoId Nothing
 
 
 --main = appmain' 1
@@ -61,6 +65,7 @@ evaluate :: Int -> ([EvidenceDescriptor], Nonce, TPM_PCR_SELECTION) ->
              (SignedData TPM_PUBKEY), Signature) -> IO String
 evaluate pId (d, nonceReq, pcrSelect)
   (ev, nonceResp, pcrComp, cert@(SignedData aikPub aikSig), qSig) = do
+  sequence $ [logf, putStrLn] <*> (pure ( "Inside Evaluate..."))
   caPublicKey <- getCAPublicKey
   let blobEvidence :: ByteString
       blobEvidence = packImpl [AEvidence ev, ANonce nonceResp,
@@ -86,21 +91,21 @@ evaluate pId (d, nonceReq, pcrSelect)
 
         2 -> (ev == [], 0)
 
-      m1 = ev !! 1
+      {-m1 = ev !! 1
       passString = case m1 of
         M1 s -> s
         _ -> error "Measurement descriptor not implemented!!"
       goldenPassword = "\"12345\\000\\000\\000\\260\\005\""
-      r6 = passString == goldenPassword
+      r6 = passString == goldenPassword -}
 
   putStrLn $ show ev
   sequence $ [logf, putStrLn] <*> (pure ("CACert Signature: " ++ (show r1)))
   sequence $ [logf, putStrLn] <*> (pure ( "Quote Package Signature: " ++ (show r2)  ))
   sequence $ [logf, putStrLn] <*> (pure ( "Nonce: " ++ (show r3)))
   sequence $ [logf, putStrLn] <*> (pure ( "PCR Values: " ++ (show r4)))
-  --if (or[pId == 1, pId == 2] ) then sequence ([logf, putStrLn] <*> (pure ("Evidence(value >= 20?): " ++ (show r5) ++ ", Evidence Value: " ++ (show evVal)))) else return [()]
-  if (or[pId == 1, pId == 2] ) then sequence ([logf, putStrLn] <*> (pure ("Evidence: " ++ (show r6) ++ ", Password Value: " ++ (show passString) ++ ", session Int Value: " ++ (show evVal)))) else return [()]
-  return $ case (and [r1, r2, r3, r4, {-r5,-} r6]) of
+  if (or[pId == 1, pId == 2] ) then sequence ([logf, putStrLn] <*> (pure ("Evidence(value >= 20???): " ++ (show r5) ++ ", Evidence Value: " ++ (show evVal)))) else return [()]
+  --if (or[pId == 1, pId == 2] ) then sequence ([logf, putStrLn] <*> (pure ("Evidence: " ++ (show r6) ++ ", Password Value: " ++ (show passString) ++ ", session Int Value: " ++ (show evVal)))) else return [()]
+  return $ case (and [r1, r2, r3, r4, r5 {-,r6-}]) of
     True -> "All checks succeeded"
     False -> "At least one check failed"
 

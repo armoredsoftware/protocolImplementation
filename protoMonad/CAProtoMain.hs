@@ -11,7 +11,7 @@ import TPM
 import TPMUtil
 import VChanUtil hiding (send, receive)
 import CommTools(killChannel, getCaDomId)
-import MeasurerComm(getTest1cVarValue, getTestBufferValues)
+import MeasurerComm --(getTest1cVarValue, getTestBufferValues)
 
 import System.IO
 import System.Random
@@ -24,6 +24,13 @@ import Codec.Crypto.RSA hiding (sign, verify, PublicKey, PrivateKey, encrypt, de
 import Control.Applicative hiding (empty)
 import Data.ByteString.Lazy hiding (replicate, putStrLn)
 import Control.Concurrent (threadDelay)
+import Data.Text as Text hiding (replicate)
+import Data.Aeson ((.:),(.:?),FromJSON(..),decodeStrict, encode, Value(..), fromJSON, Result(..))
+import qualified Control.Monad.Remote.JSON as Jsonrpc
+import Control.Monad.Remote.JSON hiding (send)
+import Control.Monad.Remote.JSON.Debug (traceSessionAPI)
+import Control.Monad.Remote.JSON.Types (SessionAPI(..))
+import Network.Socket hiding (send)
 
 iPass = tpm_digest_pass aikPass
 oPass = tpm_digest_pass ownerPass
@@ -114,7 +121,7 @@ caAtt_CA signedContents = do
   [ACipherText ekEncBlob, ACipherText kEncBlob] <- liftIO $ receive' attChan
 
   --attChan <- getEntityChannel caEntityId
-  liftIO $ close attChan
+  liftIO $ VChanUtil.close attChan
   --liftIO $ killChannel attChan
   return (ekEncBlob, kEncBlob)
 
@@ -127,7 +134,7 @@ caAtt_Mea ed = do
   pId <- protoIs
   case pId of
     1 -> do
-      (cVarValue, sock) <- liftIO $ getTest1cVarValue
+      cVarValue <- getTest1cVarValue
       return $ [M0 cVarValue]
       --x -> error $ "Evidence Descriptor" ++ (show x) ++ "not supported yet"
 
@@ -176,14 +183,14 @@ caEntity_CA attChan = do
   ekPubKey <- readEK
 
   let iPubKey = identityPubKey pubKey
-      iDigest = tpm_digest $ encode iPubKey
+      iDigest = tpm_digest $ Data.Binary.encode iPubKey
       asymContents = contents iDigest
-      blob = encode asymContents
+      blob = Data.Binary.encode asymContents
   encBlob <- tpm_rsa_pubencrypt ekPubKey blob
 
   caPriKey <- getCAPrivateKey
-  let caCert = realSign caPriKey (encode iPubKey)
-      certBytes = encode (SignedData iPubKey caCert)
+  let caCert = realSign caPriKey (Data.Binary.encode iPubKey)
+      certBytes = Data.Binary.encode (SignedData iPubKey caCert)
 
       strictCert = toStrict certBytes
       encryptedCert = encryptCTR aes ctr strictCert
@@ -232,3 +239,95 @@ logf m = do
   h <- openFile "log.1" AppendMode
   hPutStrLn h (m ++ "\n")
   hClose h
+
+getMeasurement1 :: String -> String -> String -> Proto Measurement
+getMeasurement1 host port pidString = do
+
+  --sock <- getSocket host {-"10.100.0.249"-} port
+  sock <- getMeaSocket
+  liftIO $ do
+  a <- Jsonrpc.send (mySession sock) $ do
+                       set_target_app pidString
+                       hook_app_variable "test1.c" 12 False 1 "c"
+
+  print a
+  threadDelay 6000000
+  t<- Jsonrpc.send (mySession sock) $ do
+    m <- load_store 1
+    return m
+      --b <- method "eval" (List [String "(load 1)"])
+      --notification "eval" (List [String "(quit)"])
+      --return b
+      --close sock
+      --case fromJSON t of
+      --   Success (m :: Measurement) -> return (m, sock)
+      --   Error s ->  error s
+  return t
+
+getMeasurement2 :: String -> String -> String -> Proto (Measurement,Measurement)
+getMeasurement2 host port pidString = do
+
+  --sock <- getSocket host {-"10.100.0.249"-} port
+  sock <- getMeaSocket
+  liftIO $ do
+
+  a <- Jsonrpc.send (mySession sock) $ do
+       set_target_app pidString
+       hook_app_variable "buffer_overflow2.c" 37 False 1 "password"
+
+  print a
+  --threadDelay 2000000
+
+  b <- Jsonrpc.send (mySession sock) $ do
+    hook_app_variable "buffer_overflow2.c" 38 False 2 "session"
+
+  print b
+  putStrLn $ "\n\nMEASUREMENTS HOOKED!!!!!!!!!!!!!!!!!!!!!!\n"
+  threadDelay 8000000
+
+  t<- Jsonrpc.send (mySession sock) $ do
+    b <- load_store 1
+    --notification "eval" (List [String "(quit)"])
+    return b
+
+  q<- Jsonrpc.send (mySession sock) $ do
+    b <- load_store 2
+         --notification "eval" (List [String "(quit)"])
+    return b
+  --close sock
+  {-case fromJSON t of
+    Success (m1 :: Measurement) ->
+      case fromJSON q of
+        Success (m2 :: Measurement) -> do
+          putStrLn $ "ATTESTER MEASUREMENTS:\n\n\n" ++ (show m1) ++ "\n\n" ++ (show m2) ++ "\n\n\n"
+          return (m1, m2)
+        Error s ->  error s
+    Error s ->  error s -}
+  putStrLn $ "ATTESTER MEASUREMENTS:\n\n\n" ++ (show t) ++ "\n\n" ++ (show q) ++ "\n\n\n"
+  return (t, q)
+
+
+getTest1cVarValue :: Proto Int
+getTest1cVarValue = do
+  host <- liftIO $ getMyIPString
+  port <- liftIO $ getPort
+  pid <- liftIO $ getPid
+  m <- getMeasurement1 host port pid
+  let text = topMeasurement m
+      s = Text.unpack text
+      i = read s
+  return i
+
+getTestBufferValues :: Proto (String, Int)
+getTestBufferValues = do
+  host <- liftIO $ getMyIPString
+  port <- liftIO $ getPort
+  pid <- liftIO $ getPid
+  (password, session) <- getMeasurement2 host port pid
+  let pText = topMeasurement password
+      pString = Text.unpack pText
+      sText = topMeasurement session
+      sString = Text.unpack sText
+      sInt = read sString
+  liftIO $ putStrLn $"END OF getTestBufferValues!!!\n"  ++ "Decoded evidence:  \n" ++ "pString:  " ++ pString ++ "\n\nsInt: " ++ (show sInt) ++ "\n\n"
+  return (pString, sInt)
