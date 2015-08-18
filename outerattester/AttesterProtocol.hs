@@ -23,8 +23,9 @@ attest = do
 	    let knownguys = [att,pCA]
 	    let emptyvars = []
 	    emptychans <- newTMVarIO []
-            t <- newEmptyMVar 
-
+            
+            s <- fancyGetSocket
+            t <- newMVar (AttState s)
             me <- whoAmI Attester 
 	    let s0 = ArmoredState emptyvars me knownguys [] Nothing t emptychans
 	    forkIO ( do
