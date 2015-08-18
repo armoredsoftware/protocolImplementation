@@ -254,7 +254,7 @@ data InternalState = AppState {
                        appStateNRequest :: NRequest
                      }
                    | AttState {
-                       --attStateRequester :: Entity,
+                       attStateRequester :: Entity,
                        getSocket         :: Socket
                      }
 app = Entity {
