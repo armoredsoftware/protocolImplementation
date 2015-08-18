@@ -287,7 +287,11 @@ execute (HandleFinalChoice storeVar finalNReq  proc) = do
                let str = "Negotiation complete. About to perform " ++ who ++ " sub protocol for: " ++ (show nreq)
                liftIO $ putStrLn str 
                logf' str
-               subResult <- liftIO $ f i chan
+               subResult <- case (entityRole getExecutor) of
+                           Appraiser -> liftIO $ f i chan
+                           Attester  -> do
+                             attS  <-liftIO $ readMVar getInternalStateMVar
+                             liftIO $ f i chan (getSocket attS)
                addVariable storeVar (AString subResult)
                execute proc 
                         
