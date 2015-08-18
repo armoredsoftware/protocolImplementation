@@ -22,6 +22,7 @@ import Control.Concurrent (ThreadId)
 import Data.Binary
 import Codec.Crypto.RSA hiding (sign, verify)
 
+import Network.Socket
 
 data FormalRequest = FormalRequest Entity NRequest deriving (Show)
 
@@ -253,7 +254,8 @@ data InternalState = AppState {
                        appStateNRequest :: NRequest
                      }
                    | AttState {
-                       attStateRequester :: Entity
+                       --attStateRequester :: Entity,
+                       getSocket         :: Socket
                      }
 app = Entity {
 	        entityName = "Appraiser",
