@@ -37,6 +37,8 @@ oPass = tpm_digest_pass ownerPass
 
 caEntity_Att :: Proto ()
 caEntity_Att = do
+
+  debugPrintP "\nBEGINNING OF ENTITY_ATT!!!!!!!!!!!!!!!!!!!\n"
   let appraiserEntityId :: EntityId
       appraiserEntityId = 1
   pId <- protoIs
@@ -57,8 +59,10 @@ caEntity_Att = do
 
       let caCert :: (SignedData TPM_PUBKEY)
           caCert = realDecrypt sessKey kEncBlob
-
+      liftIO $ sequence $ [logf, putStrLn] <*> (pure ( "Sending Request to Measurer"))
       evidence <- caAtt_Mea dList
+
+      liftIO $ sequence $ [logf, putStrLn] <*> (pure ( "Received response from Measurer: " ++ (show evidence)))
 
       let quoteExData =
             [AEvidence evidence,
@@ -233,12 +237,6 @@ tpmQuote qKeyHandle pcrSelect exDataList = liftIO $ do
       evBlobSha1 = bytestringDigest $ sha1 evBlob
   (comp, sig) <- mkQuote qKeyHandle iPass pcrSelect evBlobSha1
   return (comp, sig)
-
-logf ::String -> IO ()
-logf m = do
-  h <- openFile "log.1" AppendMode
-  hPutStrLn h (m ++ "\n")
-  hClose h
 
 getMeasurement1 :: String -> String -> String -> Proto Measurement
 getMeasurement1 host port pidString = do

@@ -16,10 +16,13 @@ import qualified Data.Map as M
 import System.IO
 import Codec.Crypto.RSA
 import System.Random
+import Network.Socket
 
-attCommInit :: Channel -> Int -> IO ProtoEnv
-attCommInit chan protoId {-domidS-} = do
+attCommInit :: Channel -> Int -> Socket -> IO ProtoEnv
+attCommInit chan protoId sock {-domidS-} = do
+  debugPrint "BEFORE INVOKING TPM!!!"
   ekPub <- takeInit --Taking ownership of TPM
+  debugPrint "AFTER INVOKING TPM!!!!!"
   --exportEK exportEKFileName ekPub  -- <--This is for provisioning
   {-appChan <- server_init (domidS !! 0)
   caChan <- client_init (domidS !! 1)
@@ -38,19 +41,19 @@ attCommInit chan protoId {-domidS-} = do
   let caPub = appPub --Not used
       pubs = M.fromList [(1,appPub), (2, caPub)]
 
-  host <- getMyIPString
+  {-host <- getMyIPString
   port <- getPort
-  sock <- getSocket host {-"10.100.0.249"-} port
+  sock <- MeasurerComm.getSocket host {-"10.100.0.249"-} port -}
 
   return $ ProtoEnv 0 myPri ents pubs 0 0 0 protoId (Just sock)
 
 
 --main = attmain' [1, 4]
 
-attmain' :: Int -> Channel -> IO String
-attmain' protoId chan = do
+attmain' :: Int -> Channel -> Socket -> IO String
+attmain' protoId chan sock = do
   putStrLn "Main of entity Attestation"
-  env <- attCommInit chan protoId --[1, 4]--[appId, caId]
+  env <- attCommInit chan protoId sock --[1, 4]--[appId, caId]
   eitherResult <- runProto caEntity_Att env
   let str = case eitherResult of
              Left s -> "Error occured: " ++ s

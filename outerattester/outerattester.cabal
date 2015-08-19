@@ -24,9 +24,11 @@ executable outerAttester
                       http-streams,
                       stm,
                       bytestring,
-                      aeson
-                  
+                      aeson,
+                      remote-monad,
+                      network
 
-  main-is:            OuterAttesterMain.hs                   
+
+  main-is:            OuterAttesterMain.hs
   default-language:    Haskell2010
   ghc-options:        -threaded

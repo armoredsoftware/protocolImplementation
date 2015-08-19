@@ -464,11 +464,11 @@ mylift :: a -> IO a
 mylift x = return x
 
 
-logf ::String -> IO ()
+{-logf ::String -> IO ()
 logf m = do
   h <- openFile "log.1" AppendMode
   hPutStrLn h (m ++ "\n")
-  hClose h
+  hClose h -}
 
 logf' :: String -> ArmoredStateTMonad ()
 logf' = (liftIO . logf)

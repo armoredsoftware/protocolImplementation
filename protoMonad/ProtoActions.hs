@@ -16,6 +16,9 @@ import Crypto.Random
 import System.Random
 import Control.Monad.IO.Class
 import Control.Monad.Error
+import System.Environment
+import System.IO
+import Control.Applicative hiding (empty)
 
 generateNonce :: Proto Nonce
 generateNonce = do
@@ -87,3 +90,6 @@ packImpl as = encode as --mconcat bslist
 --Concrete unpacking implementation
 unpackImpl :: Binary a => ByteString -> [a]
 unpackImpl bs = decode bs
+
+debugPrintP :: String -> Proto ()
+debugPrintP s = liftIO $ debugPrint s

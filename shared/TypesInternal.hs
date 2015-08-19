@@ -23,6 +23,8 @@ import Data.Binary
 import Codec.Crypto.RSA hiding (sign, verify)
 
 import Network.Socket
+import System.IO
+import System.Environment
 
 data FormalRequest = FormalRequest Entity NRequest deriving (Show)
 
@@ -345,3 +347,30 @@ data TPM_DATA =
 type M0Rep = Int
 type M1Rep = String
 type M2Rep = ByteString
+
+debugPrint :: String -> IO ()
+debugPrint s = do
+  flag <- getDebugFlag
+  case flag of
+    True -> do sequence $ [logf, putStrLn] <*> (pure s)
+               return ()
+    False -> return ()
+
+getDebugFlag :: IO Bool
+getDebugFlag = do
+  stringArgs <- getArgs
+  let len = Prelude.length stringArgs
+      flag = case (len < 6) of
+        True -> False
+        False -> let i = (read (stringArgs !! 5)::Int) in
+          case i of 1 -> True
+                    0 -> False
+                    _ -> error "Incorrect debug command line argument(not 1 or 0)"
+  return flag
+
+
+logf ::String -> IO ()
+logf m = do
+  h <- openFile "log.1" AppendMode
+  hPutStrLn h (m ++ "\n")
+  hClose h

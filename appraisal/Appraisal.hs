@@ -108,10 +108,3 @@ evaluate pId (d, nonceReq, pcrSelect)
   return $ case (and [r1, r2, r3, r4, r5 {-,r6-}]) of
     True -> "All checks succeeded"
     False -> "At least one check failed"
-
-
-logf ::String -> IO ()
-logf m = do
-  h <- openFile "log.1" AppendMode
-  hPutStrLn h (m ++ "\n")
-  hClose h
