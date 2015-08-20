@@ -113,8 +113,11 @@ evaluate pId (d, nonceReq, pcrSelect)
   sequence $ [logf, putStrLn] <*> (pure ( "Quote Package Signature: " ++ (show r2)  ))
   sequence $ [logf, putStrLn] <*> (pure ( "Nonce: " ++ (show r3)))
   sequence $ [logf, putStrLn] <*> (pure ( "PCR Values: " ++ (show r4)))
+  let guardString = case pId of
+        1 -> "(Value >= 20?)"
+        2 -> "(session == 0 OR session == 1 AND password == \"12345\":  False implies a buffer overflow)"
   if (or[pId == 1, pId == 2] )
-    then sequence ([logf, putStrLn] <*> (pure ("Evidence: " ++ (show r5))))
+    then sequence ([logf, putStrLn] <*> (pure ("Evidence" ++ guardString ++ ": " ++ (show r5))))
     else return [()]
 
   case pId of

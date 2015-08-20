@@ -306,7 +306,7 @@ getTestBufferValues = do
   pid <- liftIO $ getPid
   (password, session) <- getMeasurement2 host port pid
   let pText = topMeasurement password
-      pString = {-read $-} Text.unpack pText
+      pString = {-read-} $ Text.unpack pText
       sText = topMeasurement session
       sString = Text.unpack sText
       sInt = read sString
