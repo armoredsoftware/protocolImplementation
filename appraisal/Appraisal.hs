@@ -65,7 +65,7 @@ evaluate :: Int -> ([EvidenceDescriptor], Nonce, TPM_PCR_SELECTION) ->
              (SignedData TPM_PUBKEY), Signature) -> IO String
 evaluate pId (d, nonceReq, pcrSelect)
   (ev, nonceResp, pcrComp, cert@(SignedData aikPub aikSig), qSig) = do
-  sequence $ [logf, putStrLn] <*> (pure ( "Inside Evaluate..."))
+  debugPrint "Inside Evaluate" --sequence $ [logf, putStrLn] <*> (pure ( "Inside Evaluate..."))
   caPublicKey <- getCAPublicKey
   let blobEvidence :: ByteString
       blobEvidence = packImpl [AEvidence ev, ANonce nonceResp,
@@ -88,17 +88,17 @@ evaluate pId (d, nonceReq, pcrSelect)
                    M0 i -> i
                    _ -> error "Measurement descriptor not implemented!!"
       passString = case pId of
-        --1 -> ""
-        1 -> let m1 = (ev !! 1) in
+        1 -> ""
+        2 -> let m1 = (ev !! 1) in
                 case m1 of
                   M1 s -> s
                   _ -> error "Measurement descriptor not implemented!!"
 
       r5 = case pId of
-        --1 -> (intVal >= (20 :: Int))
+        1 -> (intVal >= (20 :: Int))
 
 
-        1 -> let goldenPassword = "\"12345\\000\\000\\000\\260\\005\"" in
+        2 -> let goldenPassword = "\"12345\\000\\000\\000\\260\\005\"" in
           or [intVal == 0,  and [intVal == 1, passString == goldenPassword]]
 
       {-m1 = ev !! 1
@@ -118,8 +118,8 @@ evaluate pId (d, nonceReq, pcrSelect)
     else return [()]
 
   case pId of
-    --1 -> sequence ([logf, putStrLn] <*> (pure (", Evidence Value: " ++ (show intVal))))
-    1 -> sequence ([logf, putStrLn] <*> (pure ("(Session: " ++ (show intVal) ++ ", Password: " ++ passString ++ ")")))
+    1 -> sequence ([logf, putStrLn] <*> (pure ("(Evidence Value: " ++ (show intVal) ++ ")")))
+    2 -> sequence ([logf, putStrLn] <*> (pure ("(Session: " ++ (show intVal) ++ ", \n Password: " ++ passString ++ ")")))
 
 
     _ -> return [()]

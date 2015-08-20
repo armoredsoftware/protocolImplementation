@@ -138,10 +138,10 @@ caAtt_Mea :: EvidenceDescriptor -> Proto Evidence
 caAtt_Mea ed = do
   pId <- protoIs
   case pId of
-    {-1 -> do
-      cVarValue <- getTest1cVarValue
-      return $ [M0 cVarValue] -}
     1 -> do
+      cVarValue <- getTest1cVarValue
+      return $ [M0 cVarValue]
+    2 -> do
       (s, i) <- getTestBufferValues
       return [M0 i, M1 s]
       --x -> error $ "Evidence Descriptor" ++ (show x) ++ "not supported yet"
