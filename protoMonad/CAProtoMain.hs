@@ -46,7 +46,7 @@ caEntity_Att = do
   liftIO $ pcrModify "a"
 
   case pId of
-    1 -> do
+    _ -> do
 
       req@ [AAEvidenceDescriptor dList,
             reqNonce@(ANonce nApp),
@@ -80,7 +80,7 @@ caEntity_Att = do
       send appraiserEntityId response
       return ()
 
-    2 -> do
+   {- 2 -> do
       [reqNonce@(ANonce nApp),
        ATPM_PCR_SELECTION pcrSelect] <- receive appraiserEntityId
 
@@ -107,6 +107,7 @@ caEntity_Att = do
              ASignature qSig]
       send appraiserEntityId response
       return ()
+-}
 
     _ -> error "Protocol id not yet implemented!"
 
@@ -137,9 +138,12 @@ caAtt_Mea :: EvidenceDescriptor -> Proto Evidence
 caAtt_Mea ed = do
   pId <- protoIs
   case pId of
-    1 -> do
+    {-1 -> do
       cVarValue <- getTest1cVarValue
-      return $ [M0 cVarValue]
+      return $ [M0 cVarValue] -}
+    1 -> do
+      (s, i) <- getTestBufferValues
+      return [M0 i, M1 s]
       --x -> error $ "Evidence Descriptor" ++ (show x) ++ "not supported yet"
 
 caEntity_App :: EvidenceDescriptor -> Nonce -> TPM_PCR_SELECTION ->
@@ -150,29 +154,29 @@ caEntity_App d nonceA pcrSelect = do
   pId <- protoIs
   liftIO $ sequence $ [logf, putStrLn] <*> (pure ( "Got here......."))
   let request = case pId of
-        1 -> [AAEvidenceDescriptor d, ANonce nonceA, ATPM_PCR_SELECTION pcrSelect]
-        2 -> [ANonce nonceA, ATPM_PCR_SELECTION pcrSelect]
+        _ -> [AAEvidenceDescriptor d, ANonce nonceA, ATPM_PCR_SELECTION pcrSelect]
+        {-2 -> [ANonce nonceA, ATPM_PCR_SELECTION pcrSelect]
 
         _ -> error "Protocol id not yet implemented!"
-             --return []
+             --return []-}
 
   send 1 request
   --liftIO $ logf "Sent Request \n"
   --liftIO $ threadDelay 5000000
   --liftIO $ logf "Appraiser receiving \n"
   case pId of
-        1 -> do
+        _ -> do
           response@[AEvidence e, ANonce nA, ATPM_PCR_COMPOSITE pComp,
            ASignedData (SignedData (ATPM_PUBKEY aikPub) aikSig),
            ASignature sig] <- receive 1
           --liftIO $ logf $ "Appraiser received: \n" ++ (show response) ++ "\n\n"
           return (e, nA, pComp, SignedData aikPub aikSig, sig)
 
-        2 -> do
+        {-2 -> do
           [ANonce nA, ATPM_PCR_COMPOSITE pComp,
            ASignedData (SignedData (ATPM_PUBKEY aikPub) aikSig),
            ASignature sig] <- receive 1
-          return ([], nA, pComp, SignedData aikPub aikSig, sig)
+          return ([], nA, pComp, SignedData aikPub aikSig, sig) -}
 
         _ -> error "Protocol id not yet implemented!"
 
@@ -265,42 +269,21 @@ getMeasurement1 host port pidString = do
 getMeasurement2 :: String -> String -> String -> Proto (Measurement,Measurement)
 getMeasurement2 host port pidString = do
 
-  --sock <- getSocket host {-"10.100.0.249"-} port
   sock <- getMeaSocket
   liftIO $ do
 
-  a <- Jsonrpc.send (mySession sock) $ do
+  Jsonrpc.send (mySession sock) $ do
        set_target_app pidString
-       hook_app_variable "buffer_overflow2.c" 37 False 1 "password"
-
-  print a
-  --threadDelay 2000000
-
-  b <- Jsonrpc.send (mySession sock) $ do
-    hook_app_variable "buffer_overflow2.c" 38 False 2 "session"
-
-  print b
-  putStrLn $ "\n\nMEASUREMENTS HOOKED!!!!!!!!!!!!!!!!!!!!!!\n"
-  threadDelay 8000000
 
   t<- Jsonrpc.send (mySession sock) $ do
-    b <- load_store 1
+    b <- measure_variable "password"
     --notification "eval" (List [String "(quit)"])
     return b
 
   q<- Jsonrpc.send (mySession sock) $ do
-    b <- load_store 2
-         --notification "eval" (List [String "(quit)"])
+    b <- measure_variable "session"
     return b
-  --close sock
-  {-case fromJSON t of
-    Success (m1 :: Measurement) ->
-      case fromJSON q of
-        Success (m2 :: Measurement) -> do
-          putStrLn $ "ATTESTER MEASUREMENTS:\n\n\n" ++ (show m1) ++ "\n\n" ++ (show m2) ++ "\n\n\n"
-          return (m1, m2)
-        Error s ->  error s
-    Error s ->  error s -}
+
   putStrLn $ "ATTESTER MEASUREMENTS:\n\n\n" ++ (show t) ++ "\n\n" ++ (show q) ++ "\n\n\n"
   return (t, q)
 
@@ -323,9 +306,55 @@ getTestBufferValues = do
   pid <- liftIO $ getPid
   (password, session) <- getMeasurement2 host port pid
   let pText = topMeasurement password
-      pString = Text.unpack pText
+      pString = {-read $-} Text.unpack pText
       sText = topMeasurement session
       sString = Text.unpack sText
       sInt = read sString
+
   liftIO $ putStrLn $"END OF getTestBufferValues!!!\n"  ++ "Decoded evidence:  \n" ++ "pString:  " ++ pString ++ "\n\nsInt: " ++ (show sInt) ++ "\n\n"
   return (pString, sInt)
+
+
+
+
+
+{-getMeasurement2 :: String -> String -> String -> Proto (Measurement,Measurement)
+getMeasurement2 host port pidString = do
+
+  --sock <- getSocket host {-"10.100.0.249"-} port
+  sock <- getMeaSocket
+  liftIO $ do
+
+  a <- Jsonrpc.send (mySession sock) $ do
+       set_target_app pidString
+       hook_app_variable "buffer_overflow2.c" 37 False 1 "password"
+
+  --print a
+  --threadDelay 2000000
+
+  b <- Jsonrpc.send (mySession sock) $ do
+    hook_app_variable "buffer_overflow2.c" 38 False 2 "session"
+
+  --threadDelay 8000000
+
+  t<- Jsonrpc.send (mySession sock) $ do
+    b <- load_store 1
+    --notification "eval" (List [String "(quit)"])
+    return b
+
+  q<- Jsonrpc.send (mySession sock) $ do
+    b <- load_store 2
+         --notification "eval" (List [String "(quit)"])
+    return b
+  --close sock
+  {-case fromJSON t of
+    Success (m1 :: Measurement) ->
+      case fromJSON q of
+        Success (m2 :: Measurement) -> do
+          putStrLn $ "ATTESTER MEASUREMENTS:\n\n\n" ++ (show m1) ++ "\n\n" ++ (show m2) ++ "\n\n\n"
+          return (m1, m2)
+        Error s ->  error s
+    Error s ->  error s -}
+  putStrLn $ "ATTESTER MEASUREMENTS:\n\n\n" ++ (show t) ++ "\n\n" ++ (show q) ++ "\n\n\n"
+  return (t, q)
+-}

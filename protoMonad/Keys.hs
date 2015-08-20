@@ -40,8 +40,16 @@ exportPrivateKey fileName priKey = do
 
 readPublicKey :: FilePath -> IO PublicKey
 readPublicKey fileName = do
-  decodeFile fileName
+  either <- decodeFileOrFail fileName
+  case either of
+    Left (_, s) -> do putStrLn $ "Error reading/decoding from: " ++  fileName ++ "\n" ++ s
+                      error "error reading/decoding file"
+    Right a -> return a
 
 readPrivateKey :: FilePath -> IO PrivateKey
 readPrivateKey fileName = do
-  decodeFile fileName
+  either <- decodeFileOrFail fileName
+  case either of
+    Left (_, s) -> do putStrLn $ "Error reading/decoding from: " ++  fileName ++ "\n" ++ s
+                      error "error reading/decoding file"
+    Right a -> return a

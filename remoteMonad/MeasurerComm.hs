@@ -36,6 +36,8 @@ import qualified Network.Socket.ByteString as NBS
 import Network.Info
 import Data.List
 
+import Foreign.C.String(peekCString)
+
 
 
 data Measurement = Measurement { next:: Maybe (Measurement),
@@ -113,6 +115,14 @@ getPid = do
 
 set_target_app :: String -> RPC ()
 set_target_app pidString = notification "eval" (List [String (Text.pack ("(set_target "++ pidString ++")"))])
+
+measure_variable :: String -> RPC Measurement
+measure_variable varString = do
+  v <- method "eval" (List [String $ Text.pack $ "(measure (var \"" ++ varString ++ "\"))"])
+  case fromJSON v of
+             Success (m :: Measurement) -> return m
+             Error s ->  error s
+
 
 hook_app_variable :: String -> Int -> Bool -> Int -> String -> RPC ()
 hook_app_variable appName sourceLine repeat storeNum varName =

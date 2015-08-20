@@ -83,13 +83,23 @@ evaluate pId (d, nonceReq, pcrSelect)
   goldenPcrComposite <- readGoldenComp
 
   let r4 = pcrComp == goldenPcrComposite
-      (r5, evVal) = case pId of
-        1 -> let m0 = Prelude.head ev in
+      intVal = let m0 = Prelude.head ev in
                  case m0 of
-                   M0 i -> (i >= (20 :: Int), i)
-                   _ -> error "Measurement descriptor not implemented!!" --(False, 0
+                   M0 i -> i
+                   _ -> error "Measurement descriptor not implemented!!"
+      passString = case pId of
+        --1 -> ""
+        1 -> let m1 = (ev !! 1) in
+                case m1 of
+                  M1 s -> s
+                  _ -> error "Measurement descriptor not implemented!!"
 
-        2 -> (ev == [], 0)
+      r5 = case pId of
+        --1 -> (intVal >= (20 :: Int))
+
+
+        1 -> let goldenPassword = "\"12345\\000\\000\\000\\260\\005\"" in
+          or [intVal == 0,  and [intVal == 1, passString == goldenPassword]]
 
       {-m1 = ev !! 1
       passString = case m1 of
@@ -103,7 +113,17 @@ evaluate pId (d, nonceReq, pcrSelect)
   sequence $ [logf, putStrLn] <*> (pure ( "Quote Package Signature: " ++ (show r2)  ))
   sequence $ [logf, putStrLn] <*> (pure ( "Nonce: " ++ (show r3)))
   sequence $ [logf, putStrLn] <*> (pure ( "PCR Values: " ++ (show r4)))
-  if (or[pId == 1, pId == 2] ) then sequence ([logf, putStrLn] <*> (pure ("Evidence(value >= 20???): " ++ (show r5) ++ ", Evidence Value: " ++ (show evVal)))) else return [()]
+  if (or[pId == 1, pId == 2] )
+    then sequence ([logf, putStrLn] <*> (pure ("Evidence: " ++ (show r5))))
+    else return [()]
+
+  case pId of
+    --1 -> sequence ([logf, putStrLn] <*> (pure (", Evidence Value: " ++ (show intVal))))
+    1 -> sequence ([logf, putStrLn] <*> (pure ("(Session: " ++ (show intVal) ++ ", Password: " ++ passString ++ ")")))
+
+
+    _ -> return [()]
+
   --if (or[pId == 1, pId == 2] ) then sequence ([logf, putStrLn] <*> (pure ("Evidence: " ++ (show r6) ++ ", Password Value: " ++ (show passString) ++ ", session Int Value: " ++ (show evVal)))) else return [()]
   return $ case (and [r1, r2, r3, r4, r5 {-,r6-}]) of
     True -> "All checks succeeded"
