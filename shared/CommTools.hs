@@ -43,26 +43,6 @@ import ByteStringJSON (encodeToText)
 --import qualified System.IO.Streams.Internal as StreamsI
 type ID = String
 
-getVmDomIds :: IO [Int]
-getVmDomIds = do
-  stringArgs <- getArgs
-  return $ Prelude.map read stringArgs
-
-getAppraiserDomId :: IO Int
-getAppraiserDomId = do
-  ids <- getVmDomIds
-  return $ ids !! 0
-
-getAttesterDomId :: IO Int
-getAttesterDomId = do
-  ids <- getVmDomIds
-  return $ ids !! 1
-
-getCaDomId :: IO Int
-getCaDomId = do
-  ids <- getVmDomIds
-  return $ ids !! 2
-
 ip="10.100.0.6" -- "192.168.122.1"
 
 

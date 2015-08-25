@@ -16,9 +16,10 @@ import CommunicationNegotiator
 import Control.Concurrent
 import Data.List
 import Control.Concurrent.STM
-import CommTools (whoAmI)
-import MeasurerComm
+import CommTools (whoAmI, getMyIPString)
+import MeasurerComm (getSocket)
 import Network.Socket (Socket)
+import ArmoredConfig.Environment (getPort)
 
 attest = do
             clearLogf

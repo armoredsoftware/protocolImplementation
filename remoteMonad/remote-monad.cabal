@@ -17,6 +17,7 @@ cabal-version:       >=1.10
 
 library
   exposed-modules:     MeasurerComm
+                     , Measurements
   -- other-modules:
   other-extensions:    OverloadedStrings, GADTs
   build-depends:       aeson              >=0.8 && <0.10

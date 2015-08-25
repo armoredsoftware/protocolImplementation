@@ -16,6 +16,7 @@ executable outerAttester
 
   build-depends:      negotiation-tools,
                       base,
+                      armored-config,
                       text,
                       scotty,
                       mtl,

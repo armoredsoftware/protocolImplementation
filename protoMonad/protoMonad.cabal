@@ -31,7 +31,8 @@ library
                         network,
                         text,
                         aeson,
-                        remote-json
+                        remote-json,
+                        armored-config
 
 
   ghc-options: -O -threaded
