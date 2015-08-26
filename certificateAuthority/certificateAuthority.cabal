@@ -12,6 +12,7 @@ Build-type:             Simple
 executable              CA
   hs-source-dirs:       ./, ../provisioning
   build-depends:        base >= 4,
+                        armored-config,
                         mtl,
                         transformers,
                         cipher-aes,
