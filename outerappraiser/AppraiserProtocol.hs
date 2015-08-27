@@ -23,7 +23,6 @@ import qualified Data.Text.Lazy.Encoding as LazyEncoding
 import CommTools (whoAmI)
 appraiseReqPort = 55555	      
 appraise = do
-            clearLogf
 	    putStrLn "Appraise be to Attester"
 	    let knownguys = [att,pCA]
 	    let emptyvars = []

@@ -547,9 +547,3 @@ convertNReq (ProtoNum i) = RequestItem ProtocolItem (IntProperty i)
 convertNReq (ReqLS ls)   = ReqLS (map convertNReq ls)
 convertNReq (TierRequest ls) = TierRequest (map convertNReq ls)
 convertNReq x@_              = x
-
-clearLogf :: IO ()
-clearLogf = do
-         h <- openFile "log.1" WriteMode
-         hPutStr h ""
-         hClose h

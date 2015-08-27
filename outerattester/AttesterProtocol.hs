@@ -22,7 +22,6 @@ import Network.Socket (Socket)
 import ArmoredConfig.Environment (getPort)
 
 attest = do
-            clearLogf
 	    putStrLn "Appraise be to Attester"
 	    let knownguys = [att,pCA]
 	    let emptyvars = []
