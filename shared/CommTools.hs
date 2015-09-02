@@ -108,7 +108,7 @@ sharedToAdam (WAEvidenceDescriptor e) = Ad.AEvidenceDescriptor e
 sharedToAdam (WAEvidence e) = Ad.AEvidence e
 -}
 
-
+{-
 killChannel :: Channel -> IO ()
 killChannel chan = do
   case channelInfo chan of
@@ -120,7 +120,7 @@ killChannel chan = do
       case httpInfoMaybeConnection x of
         Nothing -> return ()
         Just c -> closeConnection c
-
+-}
 data Shared   = --WRequest AD.Request
              -- | WResponse AD.Response
 	     {- |-} WEvidenceDescriptor EvidenceDescriptor
@@ -234,6 +234,7 @@ instance FromJSON Shared where
   -}
 
 maxTime = 10000000
+{-
 receiveG :: Channel -> IO Armored
 receiveG chan = do
   mArmored <- timeout maxTime $ receiveGHelper chan
@@ -438,7 +439,7 @@ receiveHttp c = receiveResponse c (\p i -> do
 	     			 	(Left err) -> return (Left ("Error decoding shared thing. Error was: " ++ err))
 	     			 	(Right r)  -> return (Right r)
 		  )
-
+-}
 
 mylift :: a -> IO a
 mylift x = return x

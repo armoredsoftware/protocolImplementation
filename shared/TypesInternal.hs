@@ -26,6 +26,7 @@ import Network.Socket
 import System.IO
 import System.Environment
 
+import AbstractedCommunication
 data FormalRequest = FormalRequest Entity NRequest deriving (Show)
 
 data NRequest = ProtoNum Int
@@ -175,7 +176,7 @@ data ChannelEntry = ChannelEntry {
 
 instance Eq ChannelEntry where
   (ChannelEntry name1 chan1) == (ChannelEntry name2 chan2) = chan1 == chan2
-data Channel = Channel {
+{-data Channel = Channel {
 	channelEntity      :: Entity,
 	channelInfo :: ChannelInfo
 	} deriving (Show)
@@ -201,6 +202,7 @@ data ChannelInfo = VChanInfo {
 instance Show ChannelInfo where
   show (VChanInfo vchan) = ("VChanInfo " ++ (show vchan))
   show (HttpInfo mt mp tp tip mconn tmls tmunit) = ("HttpInfo " ++ (show mp) ++ " " ++ (show tp) ++ " " ++ (show tip))
+-}
 
 data CommRequest = PortRequest {
 		   portRequestEntity  :: Entity,
@@ -212,11 +214,12 @@ data CommRequest = PortRequest {
 		     vChanReqquestNonce :: Integer
 		   }
 
-
+{-
 instance Eq ChannelInfo where
  (VChanInfo _) == (HttpInfo _ _ _ _ _ _ _ ) = False
  (VChanInfo m1) == (VChanInfo m1' ) = m1 == m1'
  (HttpInfo mt mp tp tip mconn tmls tmunit) == (HttpInfo mt' mp' tp' tip' mconn' tmls' tmunit') = and [mt == mt', mp == mp', tp == tp', tip == tip']
+-}
 data Role = Appraiser
     	  | Attester
 	  | Measurer

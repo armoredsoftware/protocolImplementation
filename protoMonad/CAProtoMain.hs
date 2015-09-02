@@ -10,7 +10,7 @@ import Provisioning
 import TPM
 import TPMUtil
 import VChanUtil hiding (send, receive)
-import CommTools(killChannel,getMyIPString)
+import CommTools(getMyIPString)
 import MeasurerComm (debugSession,measureSession)
 import Measurements 
 import ArmoredConfig.Environment (getCaDomId, getPort, getPid)
@@ -34,7 +34,7 @@ import Control.Monad.Remote.JSON.Debug (traceSessionAPI)
 import Control.Monad.Remote.JSON.Types (SessionAPI(..))
 import Network.Socket hiding (send)
 
-
+import AbstractedCommunication hiding (send, receive)
 
 iPass = tpm_digest_pass aikPass
 oPass = tpm_digest_pass ownerPass

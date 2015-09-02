@@ -36,7 +36,9 @@ library
                       VChanUtil,
                       attestation,
                       appraisal,
-                      http-streams
+                      http-streams,
+                      abstractedcommunication,
+                      armoredcommunication		      
                       
                       
 

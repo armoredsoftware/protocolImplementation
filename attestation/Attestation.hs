@@ -17,6 +17,7 @@ import Codec.Crypto.RSA
 import System.Random
 import Network.Socket
 
+import AbstractedCommunication
 attCommInit :: Channel -> Int -> Socket -> IO ProtoEnv
 attCommInit chan protoId sock {-domidS-} = do
   debugPrint "BEFORE INVOKING TPM!!!"

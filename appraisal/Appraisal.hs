@@ -21,6 +21,8 @@ import Data.Digest.Pure.SHA (bytestringDigest, sha1)
 import Data.Binary
 import Control.Applicative hiding (empty)
 
+import AbstractedCommunication
+
 appCommInit :: Channel -> Int -> IO ProtoEnv
 appCommInit attChan protoId {-domid-} = do
   --attChan <- client_init domid

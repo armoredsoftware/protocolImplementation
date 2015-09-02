@@ -27,9 +27,12 @@ executable outerAttester
                       bytestring,
                       aeson,
                       remote-monad,
-                      network
-
-
+                      network,
+                      abstractedcommunication,
+                      armoredcommunication,
+                      communicationmonad,
+                      attestation		      
+                  
   main-is:            OuterAttesterMain.hs
   default-language:    Haskell2010
   ghc-options:        -threaded

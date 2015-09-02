@@ -1,7 +1,7 @@
 {-# LANGUAGE RecordWildCards  #-}
 module Protocol where
 
-import Data.Aeson (toJSON, parseJSON, ToJSON,FromJSON, object , (.=), (.:) )
+import Data.Aeson (toJSON, parseJSON, ToJSON,FromJSON, object , (.=), (.:), Result (..) )
 import ArmoredTypes hiding (Result, AttState)
 import Control.Monad
 import Control.Monad.State.Strict
@@ -27,6 +27,10 @@ import System.Timeout
 import qualified Attestation as AttSubProto (attmain')
 import qualified Appraisal   as AppSubProto (appmain')
 
+import AbstractedCommunication
+import DefaultComm
+
+{-
 runExecute :: Process -> Entity ->IO (Process, ArmoredState)
 runExecute proto executor = do
    let emptyvars = []
@@ -68,41 +72,15 @@ execute (CreateChannel achan ent1 proc) = do
      (AChannel chanName) -> do
        case ent1' of
         (AEntity ent1'') -> do
-          mVChannel <- maybeCreateVChannelWith ent1'' chanName
-          case mVChannel of
+          --TODO check if channel exists and add to state!!
+          
+          s <- get
+          case getmStateChannel s of
+            Just _ -> return ()
             Nothing -> do
-              let str = "vchan establishment unsuccessful. Trying Http.."
-              liftIO $ putStrLn $ str
-              logf' str
-              mHttpChannel <- tryCreateHttpChannel ent1'' chanName
-              case mHttpChannel of
-                Nothing -> do
-                  let  str2 = "super error! no channel created. vchan and http failed."
-                  liftIO $ putStrLn str2
-                  logf' str2
-                  killChannels
-                  return $ Stuck str2
-                Just hChan -> do
-                  let str3 = "successfully created hmain'"
-                  liftIO $ putStrLn $ str3
-                  logf' str3
-                  --http chan added to state in tryCreateHttpChannel
-                  s <- get
-                  case getmStateChannel s of
-                    Just _ -> return ()
-                    Nothing -> do
-                      ArmoredState {..} <- get
-                      put $ ArmoredState { getmStateChannel = Just hChan, ..}
-
-                  execute proc
-            Just vchan -> do --could be because channel existed, or because I just made it.
-              s <- get
-              case getmStateChannel s of
-                Just _ -> return ()
-                Nothing -> do
-                  ArmoredState {..} <- get
-                  put $ ArmoredState { getmStateChannel = Just vchan, ..}
-              execute proc
+              ArmoredState {..} <- get
+              put $ ArmoredState { getmStateChannel = Just hChan, ..}
+          execute proc
         (_)              -> do
           let str = "not an entity in create channel!!! stopping now."
           liftIO $ putStrLn str
@@ -141,7 +119,8 @@ execute (Send mess chan proc) = do
          liftIO $ putStrLn str
          logf' str
          liftIO $ atomically $ putTMVar chanEntryTMVar chanEntryLS
-         liftIO $ sendG chan mess'
+         --liftIO $ sendG chan mess'
+         liftIO $ send chan mess'
      execute proc
    _		      -> do
                           killChannels
@@ -168,21 +147,28 @@ execute (Receive var chan proc) = do
          return (Stuck str)
        Just chanEntry -> do
          let chan = channelEntryChannel chanEntry
-         armoredGift <- liftIO $ receiveG chan
-         liftIO $ atomically $ putTMVar chanEntryTMVar chanEntryLS
-         case armoredGift of
-           AFailure str -> do
-             let str =  ("Crap. failed in receive: " ++ str )
+         resArmored <- liftIO $ receive chan :: IO (Result Armored)
+         case resArmored of
+           Error err-> do
+             let str = "Failed in Receive keyword execution reading message as 'Result armored'"
              liftIO $ putStrLn str
              logf' str
-             killChannels
              return $ Stuck str
-           x@_          -> do
-             addVariable var x
-             execute proc
-   _		      -> do
-                           killChannels
-                           return (Stuck "attempt to receive on non-channel")
+           Success armoredGift -> do 
+             liftIO $ atomically $ putTMVar chanEntryTMVar chanEntryLS
+             case armoredGift of
+               AFailure str -> do
+                 let str =  ("Crap. failed in receive: " ++ str )
+                 liftIO $ putStrLn str
+                 logf' str
+                 killChannels
+                 return $ Stuck str
+               x@_          -> do
+                 addVariable var x
+                 execute proc
+   _	      -> do
+     killChannels
+     return (Stuck "attempt to receive on non-channel")
 execute (Case v1 ls procSucceed procFail) = do
   v1' <- subIfVar v1
   ls' <- sequence $ map subIfVar ls
@@ -392,6 +378,8 @@ subIfVar  armItem = do
              (AttState x _) -> do
                return $ AEntity x
      _ -> return $ subIfVar'  armItem (getVars s)
+
+-}
 
 subIfVar' ::  Armored -> VariableBindings ->  Armored
 subIfVar'  armItem gamma = case myLookup  armItem gamma of

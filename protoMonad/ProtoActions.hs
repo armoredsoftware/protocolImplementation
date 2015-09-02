@@ -2,7 +2,7 @@
 module ProtoActions where
 
 import ArmoredTypes
-import CommTools(sendG', receiveG')
+--import CommTools(sendG', receiveG')
 import ProtoMonad
 import VChanUtil hiding (send, receive)
 import TPM.Types
@@ -20,6 +20,8 @@ import System.Environment
 import System.IO
 import Control.Applicative hiding (empty)
 
+import AbstractedCommunication
+import Data.Aeson (Result (..) )
 generateNonce :: Proto Nonce
 generateNonce = do
   return 56 --faked
@@ -45,7 +47,7 @@ send :: EntityId -> Message -> Proto ()
 send toId ds = do
   chan <- getEntityChannel toId
   --liftIO $ send' chan ds
-  liftIO $ sendG' chan ds
+  liftIO $ AbstractedCommunication.send chan ds
   --liftIO $ putStrLn $ "Sent message! " ++ (show ds)
   return ()
 
@@ -62,8 +64,11 @@ receive fromId = do
  -- liftIO $ putStrLn $ "In receive"
   chan <- getEntityChannel fromId
   --result <- liftIO $ receive' chan
-  result <- liftIO $ receiveG' chan
-  return $ result
+  resultR <- liftIO $ (AbstractedCommunication.receive chan :: IO (Result Message))
+  --TODO fix error
+  case resultR of
+    Error err -> error err
+    Success result -> return result
 
 receive' :: LibXenVChan -> IO Message
 receive' chan = do

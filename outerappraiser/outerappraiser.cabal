@@ -24,7 +24,11 @@ executable outerAppraiser
                       http-streams,
                       stm,
                       bytestring,
-                      aeson
+                      aeson,
+                      abstractedcommunication,
+                      armoredcommunication,
+                      communicationmonad,
+                      appraisal		      
                   
   main-is:            OuterAppraiserMain.hs                   
   default-language:    Haskell2010

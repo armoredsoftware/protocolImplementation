@@ -26,7 +26,8 @@ library
                         sharedarmor,
                         random,
                         protoMonad,
-                        remote-monad
+                        remote-monad,
+                        abstractedcommunication
 
   --Main-is: AppraiserMain.hs
   ghc-options: -O  -threaded
