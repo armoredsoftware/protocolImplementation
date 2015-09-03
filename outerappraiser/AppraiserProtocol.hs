@@ -27,7 +27,6 @@ import DefaultComm
 import CommunicationMonad
 appraiseReqPort = 55555	      
 {-appraise = do
-            clearLogf
 	    putStrLn "Appraise be to Attester"
 	    let knownguys = [att,pCA]
 	    let emptyvars = []
