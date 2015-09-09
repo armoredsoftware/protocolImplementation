@@ -8,7 +8,7 @@ import ProtoActions
 import VChanUtil
 import TPMUtil
 import Keys
-import CommTools(getAttesterDomId)
+import ArmoredConfig.Environment(getAttesterDomId)
 
 import Prelude
 import Data.ByteString.Lazy hiding (putStrLn, head, tail, map)

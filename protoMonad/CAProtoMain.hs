@@ -10,8 +10,10 @@ import Provisioning
 import TPM
 import TPMUtil
 import VChanUtil hiding (send, receive)
-import CommTools(killChannel, getCaDomId)
-import MeasurerComm --(getTest1cVarValue, getTestBufferValues)
+import CommTools(getMyIPString)
+import MeasurerComm (debugSession,measureSession)
+import Measurements 
+import ArmoredConfig.Environment (getCaDomId, getPort, getPid)
 
 import System.IO
 import System.Random
@@ -32,8 +34,13 @@ import Control.Monad.Remote.JSON.Debug (traceSessionAPI)
 import Control.Monad.Remote.JSON.Types (SessionAPI(..))
 import Network.Socket hiding (send)
 
+import AbstractedCommunication hiding (send, receive)
+
 iPass = tpm_digest_pass aikPass
 oPass = tpm_digest_pass ownerPass
+
+measSession :: Socket -> Jsonrpc.Session
+measSession socket = debugSession socket
 
 caEntity_Att :: Proto ()
 caEntity_Att = do
@@ -248,13 +255,13 @@ getMeasurement1 host port pidString = do
   --sock <- getSocket host {-"10.100.0.249"-} port
   sock <- getMeaSocket
   liftIO $ do
-  a <- Jsonrpc.send (mySession sock) $ do
+  a <- Jsonrpc.send (measSession sock) $ do
                        set_target_app pidString
                        hook_app_variable "test1.c" 12 False 1 "c"
 
   print a
   threadDelay 6000000
-  t<- Jsonrpc.send (mySession sock) $ do
+  t<- Jsonrpc.send (measSession sock) $ do
     m <- load_store 1
     return m
       --b <- method "eval" (List [String "(load 1)"])
@@ -272,15 +279,15 @@ getMeasurement2 host port pidString = do
   sock <- getMeaSocket
   liftIO $ do
 
-  Jsonrpc.send (mySession sock) $ do
+  Jsonrpc.send (measSession sock) $ do
        set_target_app pidString
 
-  t<- Jsonrpc.send (mySession sock) $ do
+  t<- Jsonrpc.send (measSession sock) $ do
     b <- measure_variable "password"
     --notification "eval" (List [String "(quit)"])
     return b
 
-  q<- Jsonrpc.send (mySession sock) $ do
+  q<- Jsonrpc.send (measSession sock) $ do
     b <- measure_variable "session"
     return b
 
@@ -325,24 +332,24 @@ getMeasurement2 host port pidString = do
   sock <- getMeaSocket
   liftIO $ do
 
-  a <- Jsonrpc.send (mySession sock) $ do
+  a <- Jsonrpc.send (measSession sock) $ do
        set_target_app pidString
        hook_app_variable "buffer_overflow2.c" 37 False 1 "password"
 
   --print a
   --threadDelay 2000000
 
-  b <- Jsonrpc.send (mySession sock) $ do
+  b <- Jsonrpc.send (measSession sock) $ do
     hook_app_variable "buffer_overflow2.c" 38 False 2 "session"
 
   --threadDelay 8000000
 
-  t<- Jsonrpc.send (mySession sock) $ do
+  t<- Jsonrpc.send (measSession sock) $ do
     b <- load_store 1
     --notification "eval" (List [String "(quit)"])
     return b
 
-  q<- Jsonrpc.send (mySession sock) $ do
+  q<- Jsonrpc.send (measSession sock) $ do
     b <- load_store 2
          --notification "eval" (List [String "(quit)"])
     return b

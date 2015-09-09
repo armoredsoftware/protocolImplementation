@@ -40,7 +40,8 @@ library
                       network-info,
                       network-uri,
                       scotty,
-                      stm
+                      stm,
+                      abstractedcommunication		      
 
   ghc-options: -threaded
   hs-source-dirs:

@@ -9,7 +9,6 @@ import TPM
 import TPMUtil
 import Keys
 import Provisioning(readGoldenComp)
-import MeasurerComm
 
 
 import Prelude
@@ -22,6 +21,8 @@ import Data.Digest.Pure.SHA (bytestringDigest, sha1)
 import Data.Binary
 import Control.Applicative hiding (empty)
 
+import AbstractedCommunication
+
 appCommInit :: Channel -> Int -> IO ProtoEnv
 appCommInit attChan protoId {-domid-} = do
   --attChan <- client_init domid
@@ -33,9 +34,6 @@ appCommInit attChan protoId {-domid-} = do
   --attPub <-getBPubKey
   let pubs = M.fromList [(1,attPub)]
 
-  {-host <- getMyIPString
-  port <- getPort
-  sock <- getSocket host {-"10.100.0.249"-} port -}
 
   return $ ProtoEnv 0 myPri ents pubs 0 0 0 protoId Nothing
 
@@ -101,12 +99,6 @@ evaluate pId (d, nonceReq, pcrSelect)
         2 -> let goldenPassword = "\"12345\\000\\000\\000\\260\\005\"" in
           or [intVal == 0,  and [intVal == 1, passString == goldenPassword]]
 
-      {-m1 = ev !! 1
-      passString = case m1 of
-        M1 s -> s
-        _ -> error "Measurement descriptor not implemented!!"
-      goldenPassword = "\"12345\\000\\000\\000\\260\\005\""
-      r6 = passString == goldenPassword -}
 
   putStrLn $ show ev
   sequence $ [logf, putStrLn] <*> (pure ("CACert Signature: " ++ (show r1)))

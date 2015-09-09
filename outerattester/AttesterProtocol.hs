@@ -16,64 +16,42 @@ import CommunicationNegotiator
 import Control.Concurrent
 import Data.List
 import Control.Concurrent.STM
-import CommTools (whoAmI)
-import MeasurerComm
+import CommTools (whoAmI, getMyIPString)
+import MeasurerComm (getSocket)
 import Network.Socket (Socket)
+import ArmoredConfig.Environment (getPort)
 
+import AbstractedCommunication hiding (send, receive)
+import qualified Attestation as AttSubProto (attmain')
+import CommunicationMonad
+import DefaultComm
 attest = do
-            clearLogf
-	    putStrLn "Appraise be to Attester"
-	    let knownguys = [att,pCA]
-	    let emptyvars = []
-	    emptychans <- newTMVarIO []
+  clearLogf
+  putStrLn "Appraise be to Attester"
+  let knownguys = [att,pCA]
+  let emptyvars = []
+  emptychans <- newTMVarIO []
+          --s <- fancyGetSocket
+  host <- getMyIPString
+  port <- getPort
+  debugPrint "BEFORE.. CONNECTING... TO. MEASURER. SOCKET!!!"
+  s <- MeasurerComm.getSocket host {-"10.100.0.249"-} port
 
-            --s <- fancyGetSocket
-            host <- getMyIPString
-            port <- getPort
-            debugPrint "BEFORE.. CONNECTING... TO. MEASURER. SOCKET!!!"
-            s <- MeasurerComm.getSocket host {-"10.100.0.249"-} port
-            debugPrint "AFTER CONNECTING TO MEASURER SOCKET!!!"
-            me <- whoAmI Attester
-            t <- newMVar (AttState me s)
-
-	    let s0 = ArmoredState emptyvars me knownguys [] Nothing t emptychans
-	    forkIO ( do
-	    	runStateT negotiator s0
-	    	return ()
-	    	)
-           -- runStateT negotiator s0
-	    --threadDelay 6000000
-	    --runExecute' myProto s0
-	    newChannelTrigger emptychans [] s
+  
 
 
-newChannelTrigger :: TMVar [ChannelEntry] -> [ChannelEntry] -> Socket -> IO a
-newChannelTrigger chanETMVar handled sock = do
-  chanELS <- atomically $ takeTMVar chanETMVar
-  let unhandled = chanELS \\ handled
-  putStrLn $ (show unhandled)
-  theadIDs <- sequence $ map (\chanE -> do
-        forkIO (
-          do
-            putStrLn "Appraise be to Attester. Poppin' a thread."
-	    let knownguys = [att,pCA]
-	    let emptyvars = []
-            let requester = channelEntity (channelEntryChannel chanE)
-            t <- newMVar (AttState requester sock)
+  debugPrint "AFTER CONNECTING TO MEASURER SOCKET!!!"
+  declareDefaultComm' (myProto' s)
+  --me <- whoAmI Attester
+  --t <- newMVar (AttState me s)
 
-            let me = att
-            atomically $ tryPutTMVar chanETMVar chanELS
-	    let s0 = ArmoredState emptyvars me knownguys privacyPol (Just (channelEntryChannel chanE)) t chanETMVar
-            runExecute' myProto s0
-            return ())) unhandled
-  let handled' = unhandled ++ handled
-  atomically $ tryPutTMVar chanETMVar chanELS
-  yield
-  threadDelay 1000000 -- 1 second delay
-  newChannelTrigger chanETMVar handled' sock
+  --let s0 = ArmoredState emptyvars me knownguys [] (Just c) t emptychans
 
-myProto =    CreateChannel (AChannel "chan") Requester
-	   $ Receive (Var "request") (AChannel "chan")
+  
+
+{-
+myProto =    --CreateChannel (AChannel "chan") Requester
+	     Receive (Var "request") (AChannel "chan")
 	   $ ComputeCounterOffer (Var "counterOffer") (Var "request")
 	   $ Send (Var "counterOffer") (AChannel "chan")
            $ Receive (Var "theirFinalChoice") (AChannel "chan")
@@ -81,26 +59,46 @@ myProto =    CreateChannel (AChannel "chan") Requester
            $ Send (Var "finalAgreement") (AChannel "chan")
            $ HandleFinalChoice (Var "result") (Var "finalAgreement")
 	   $ Result (Var "result")
+-}
+myProto' :: Socket -> Converse ()
+myProto' sock = do
+  req <- receive :: Converse NRequest
+  let req' = convertNReq req 
+  liftIO $ putStrLn $ "calling: " ++ (show req') ++ "`liesin`" ++ (show privacyPol) ++ "~~~~~~~~~~~~~~~~~~~~~~~~~~"
+  let nresp = createCounterOffer req' privacyPol -- :: NResponse
+  liftIO $ putStrLn $ "Here is my counter offer: " ++ (show nresp)
+  send nresp
+  theirFinalChoice <- receive :: Converse NRequest
+  let finalagreement = (case theirFinalChoice `completelyAbidesBy` privacyPol of
+                      False -> ReqLS [] -- No
+                      True  -> theirFinalChoice)
+  send finalagreement
+  case finalagreement of
+    (ReqLS []) -> do
+      let str = "Could not come to an agreement. No attestation to take place."
+      liftIO $ putStrLn str
+      liftIO$ logf str
+      return ()
+    (RequestItem ProtocolItem (IntProperty i)) -> do
+      let str = "Negotiation complete. About to perform Attester sub protocol for: " ++ (show req)
+      liftIO $ putStrLn str
+      liftIO $ logf str
+      chan <- getChannel
+      subResult <- liftIO $ AttSubProto.attmain' i chan sock
+      let str2 = "sub protocol complete."
+      liftIO $ putStrLn str2
+      liftIO $ logf str2
+      liftIO $ print subResult
+    x@_ -> do
+      let str = "The result of negotiation is currently unimplemented. The result was: " ++ (show x)
+      liftIO $ putStrLn str
+      liftIO $ logf str
+      return ()
 
-
--- <<<<<<< HEAD
---privacyPol = [Reveal [(ProtocolItem, [IntProperty 1])]  FREE
-  --           ]
--- =======
-{-privacyPol = [Reveal [(ProtocolItem, [IntProperty 1])] condOS
-                   , Reveal [(ProtocolItem, [IntProperty 2])] FREE
-                                                                ] --condOS --FREE  -}
--- >>>>>>> 0652a7f8fdc5f8afb2b9f1f0c6df78abb8dd481b
 
 privacyPol = [Reveal [(ProtocolItem, [IntProperty 1])] FREE,
-                 Reveal [(ProtocolItem, [IntProperty 2])] FREE                                             ] --condOS
+                 Reveal [(ProtocolItem, [IntProperty 2])] FREE   ] --condOS
 condFree = FREE
 condOS = Equals OS Name (ValString "McAffee")
 --	      -}
 
-data T1 = T1 T2 deriving (Show)
-
-data T2 = T2 T1 deriving (Show)
-
-f :: T1
-f = T1 (T2 f)

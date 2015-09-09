@@ -4,7 +4,7 @@ module ProtoMonad where
 
 import ArmoredTypes
 import VChanUtil
-import CommTools(sendG')
+--import CommTools(sendG')
 
 import Prelude hiding (lookup)
 import Data.Map hiding (foldl)
@@ -14,6 +14,7 @@ import qualified Control.Monad.Trans.Error as ET
 import Control.Monad
 import Network.Socket
 
+import AbstractedCommunication
 type Proto = T.ReaderT ProtoEnv (ErrorT String IO)
 
 runProto :: (Proto a) -> ProtoEnv ->  IO (Either String a)

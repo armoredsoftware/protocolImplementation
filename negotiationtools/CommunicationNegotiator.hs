@@ -32,9 +32,11 @@ import Data.Aeson hiding (json)
 import Data.Word (Word16)
 
 import qualified Data.List as List
+
+import AbstractedCommunication
 negotiationport = 3000
 
-
+{-
 channelExistsWith :: [ChannelEntry] -> Entity -> IO (Maybe Channel)
 channelExistsWith [] e     = return Nothing
 channelExistsWith (x:xs) e = do
@@ -528,7 +530,7 @@ harvestPorts (x:xs) = case (channelInfo (channelEntryChannel x)) of
 			h@(HttpInfo _ _ _ _ _ _ _) -> (httpInfoMyServingPort h) : (harvestPorts xs)
 
 
-
+-}
 killChannels :: ArmoredStateTMonad ()
 killChannels = do
   s <- get
@@ -544,8 +546,10 @@ killChannels = do
 
 killChannel :: ChannelEntry -> IO ()
 killChannel chanE  = do 
-  let chanInfo = channelInfo $ channelEntryChannel chanE
-  case chanInfo of
+  let chanInfo = {-channelInfo $-} channelEntryChannel chanE
+  killChan chanInfo
+
+  {-case chanInfo of
     (HttpInfo mTid myPort mTheirPort theirIP mConn msgTMVar unitTMVar) -> do
       case mTid of
        Nothing -> 
@@ -563,5 +567,5 @@ killChannel chanE  = do
           return ()
         Just c  -> do
           close c
-
+-}
  
