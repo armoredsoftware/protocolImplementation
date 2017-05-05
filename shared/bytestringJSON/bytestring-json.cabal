@@ -9,7 +9,7 @@ Maintainer:          Paul Kline
 -- copyright:
 category:            System
 build-type:          Simple
-extra-source-files:  README.md
+--extra-source-files:  README.md
 cabal-version:       >=1.10
 
 library
